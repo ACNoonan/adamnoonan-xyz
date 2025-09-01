@@ -15,8 +15,9 @@ const projects = [
 
 const socials = [
     "Socials:",
-    "GitHub: <a href='https://github.com/adamnoonan' target='_blank'>github.com/adamnoonan</a>",
-    "LinkedIn: <a href='https://www.linkedin.com/in/adam-noonan-b467681b/' target='_blank'>linkedin.com/in/adam-noonan-b467681b/</a>",
+    "LinkedIn: <a href='https://www.linkedin.com/in/adam-noonan/' target='_blank'>linkedin.com/in/adam-noonan/</a>",
+    "Twitter: <a href='https://x.com/_adamnoonan' target='_blank'>x.com/_adamnoonan</a>",
+    "GitHub: <a href='https://github.com/ACNoonan' target='_blank'>github.com/ACNoonan</a>",
     "------------------------------------------"
 ];
 
@@ -28,7 +29,7 @@ const writings = [
 
 const pingMe = [
     "Ping Me:",
-    "You can reach me at: example@example.com",
+    "You can reach me at: adamnoonan@protonmail.com",
     "------------------------------------------"
 ];
 
