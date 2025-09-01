@@ -6,31 +6,28 @@ const input = document.getElementById('input');
 const aboutMeText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.";
 
 const projects = [
-    "Projects:",
-    "1. Project One - A brief description of the project.",
-    "2. Project Two - A brief description of the project.",
-    "3. Project Three - A brief description of the project.",
-    "------------------------------------------"
+    "",
+    "1. UMA Agent - Your favorite restaurant's favorite app - the AI Back Office automation agent.",
+    "2. Samachi - Event tech startup, combining social media, brand sponsorship and embedded finance.",
+    "3. AIVIS - Abandoned AI Visibility start-up, helping marketers understand what AI is saying about their brands"
 ];
 
 const socials = [
-    "Socials:",
-    "LinkedIn: <a href='https://www.linkedin.com/in/adam-noonan/' target='_blank'>linkedin.com/in/adam-noonan/</a>",
-    "Twitter: <a href='https://x.com/_adamnoonan' target='_blank'>x.com/_adamnoonan</a>",
-    "GitHub: <a href='https://github.com/ACNoonan' target='_blank'>github.com/ACNoonan</a>",
-    "------------------------------------------"
+    "",
+    "LinkedIn: linkedin.com/in/adam-noonan/",
+    "Twitter: x.com/_adamnoonan",
+    "GitHub: github.com/ACNoonan"
 ];
 
 const writings = [
-    "Writings:",
+    "",
     "Coming soon...",
-    "------------------------------------------"
+    ""
 ];
 
 const pingMe = [
-    "Ping Me:",
-    "You can reach me at: adamnoonan@protonmail.com",
-    "------------------------------------------"
+    "",
+    "You can reach me at: adamnoonan@protonmail.com"
 ];
 
 
@@ -106,9 +103,7 @@ async function intro() {
 
     const aboutMeParagraph = document.createElement('p');
     output.appendChild(aboutMeParagraph);
-    const aboutMeParagraphText = document.createElement('span');
-    aboutMeParagraph.appendChild(aboutMeParagraphText);
-    await type(aboutMeText, aboutMeParagraphText, 20);
+    aboutMeParagraph.innerHTML = "> " + aboutMeText.replace(/\. /g, ".<br>> ");
 
     print('<br><br>', output, false);
 
@@ -216,17 +211,23 @@ function handleOption(option) {
 }
 
 async function introAfterSelection() {
+    const welcomeLine = document.createElement('p');
+    output.appendChild(welcomeLine);
+    welcomeLine.innerHTML = "> I'm Adam Noonan";
+    
+    const thanksLine = document.createElement('p');
+    output.appendChild(thanksLine);
+    thanksLine.innerHTML = "> Welcome to my website";
+
+    print('<br>', output, false);
+
     const aboutMeHeader = document.createElement('p');
     output.appendChild(aboutMeHeader);
-    const aboutMeHeaderText = document.createElement('span');
-    aboutMeHeader.appendChild(aboutMeHeaderText);
-    await type("Here's a little about me:", aboutMeHeaderText);
+    aboutMeHeader.innerHTML = "> Here's a little about me:";
 
     const aboutMeParagraph = document.createElement('p');
     output.appendChild(aboutMeParagraph);
-    const aboutMeParagraphText = document.createElement('span');
-    aboutMeParagraph.appendChild(aboutMeParagraphText);
-    await type(aboutMeText, aboutMeParagraphText, 0); // Type instantly
+    aboutMeParagraph.innerHTML = "> " + aboutMeText.replace(/\. /g, ".<br>> ");
 
     print('<br><br>', output, false);
     showOptions();
