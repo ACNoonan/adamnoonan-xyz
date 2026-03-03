@@ -1,222 +1,239 @@
-// ── Simplex Noise (2D) ──────────────────────────────────────────────
-
-const SimplexNoise = (() => {
-    const F2 = 0.5 * (Math.sqrt(3) - 1);
-    const G2 = (3 - Math.sqrt(3)) / 6;
-    const grad = [[1,1],[-1,1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
-
-    function create(seed) {
-        const perm = new Uint8Array(512);
-        const p = new Uint8Array(256);
-        let s = seed | 0;
-        for (let i = 0; i < 256; i++) p[i] = i;
-        for (let i = 255; i > 0; i--) {
-            s = (s * 16807 + 0) % 2147483647;
-            const j = s % (i + 1);
-            [p[i], p[j]] = [p[j], p[i]];
-        }
-        for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
-
-        return function noise2D(x, y) {
-            const s2 = (x + y) * F2;
-            const i = Math.floor(x + s2);
-            const j = Math.floor(y + s2);
-            const t = (i + j) * G2;
-            const X0 = i - t, Y0 = j - t;
-            const x0 = x - X0, y0 = y - Y0;
-            const i1 = x0 > y0 ? 1 : 0;
-            const j1 = x0 > y0 ? 0 : 1;
-            const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
-            const x2 = x0 - 1 + 2 * G2, y2 = y0 - 1 + 2 * G2;
-            const ii = i & 255, jj = j & 255;
-
-            let n0 = 0, n1 = 0, n2 = 0;
-            let t0 = 0.5 - x0*x0 - y0*y0;
-            if (t0 > 0) { t0 *= t0; const g = grad[perm[ii + perm[jj]] & 7]; n0 = t0 * t0 * (g[0]*x0 + g[1]*y0); }
-            let t1 = 0.5 - x1*x1 - y1*y1;
-            if (t1 > 0) { t1 *= t1; const g = grad[perm[ii + i1 + perm[jj + j1]] & 7]; n1 = t1 * t1 * (g[0]*x1 + g[1]*y1); }
-            let t2 = 0.5 - x2*x2 - y2*y2;
-            if (t2 > 0) { t2 *= t2; const g = grad[perm[ii + 1 + perm[jj + 1]] & 7]; n2 = t2 * t2 * (g[0]*x2 + g[1]*y2); }
-            return 70 * (n0 + n1 + n2);
-        };
-    }
-    return { create };
-})();
-
 // ── Globals ─────────────────────────────────────────────────────────
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const seed = Math.random() * 2147483647;
-const noise = SimplexNoise.create(seed);
 
 let W, H, dpr;
 let mouse = { x: -9999, y: -9999 };
 let isMobile = window.innerWidth < 769;
-let sectionEls = [];
-let sectionTops = [];
+let time = 0;
 
-// ── Chain Configuration ─────────────────────────────────────────────
+// ── Tree of Life / Neural Net Layout ────────────────────────────────
+// 10 Sephirot arranged in three pillars, plus Da'at (hidden/knowledge).
+// Positions are normalized 0–1, mapped to screen in render.
 
-const CHAIN_COUNT = isMobile ? 16 : 25;
-const PERSPECTIVE = 600;
-const CIRCLE_SEGMENTS = 64;
+const NODES = [
+    // id, x (0-1), y (0-1), radius multiplier, name
+    { id: 0,  x: 0.5,  y: 0.04, r: 1.1,  name: 'Keter' },      // Crown
+    { id: 1,  x: 0.78, y: 0.14, r: 0.9,  name: 'Chokmah' },    // Wisdom
+    { id: 2,  x: 0.22, y: 0.14, r: 0.9,  name: 'Binah' },      // Understanding
+    { id: 3,  x: 0.5,  y: 0.22, r: 0.6,  name: 'Daat' },       // Knowledge (hidden)
+    { id: 4,  x: 0.78, y: 0.36, r: 0.85, name: 'Chesed' },     // Mercy
+    { id: 5,  x: 0.22, y: 0.36, r: 0.85, name: 'Gevurah' },    // Severity
+    { id: 6,  x: 0.5,  y: 0.46, r: 1.0,  name: 'Tiferet' },    // Beauty
+    { id: 7,  x: 0.78, y: 0.60, r: 0.8,  name: 'Netzach' },    // Victory
+    { id: 8,  x: 0.22, y: 0.60, r: 0.8,  name: 'Hod' },        // Splendor
+    { id: 9,  x: 0.5,  y: 0.72, r: 0.75, name: 'Yesod' },      // Foundation
+    { id: 10, x: 0.5,  y: 0.88, r: 1.05, name: 'Malkuth' },    // Kingdom
+];
 
-let chain = [];
+// 22 paths (edges) — the classic Tree of Life connections
+// Each edge: [fromId, toId, weight (neural net style)]
+const EDGES = [
+    [0, 1, 0.8],  [0, 2, 0.8],  [0, 6, 0.6],
+    [1, 2, 0.5],  [1, 3, 0.4],  [1, 4, 0.7],  [1, 6, 0.5],
+    [2, 3, 0.4],  [2, 5, 0.7],  [2, 6, 0.5],
+    [3, 4, 0.3],  [3, 5, 0.3],
+    [4, 5, 0.5],  [4, 6, 0.6],  [4, 7, 0.7],
+    [5, 6, 0.6],  [5, 8, 0.7],
+    [6, 7, 0.5],  [6, 8, 0.5],  [6, 9, 0.7],
+    [7, 9, 0.6],  [8, 9, 0.6],
+    [9, 10, 0.9],
+];
 
-function buildChain() {
-    chain = [];
-    const types = ['circle', 'square', 'triangle'];
+// ── Resize ──────────────────────────────────────────────────────────
 
-    let currentY = 0;
-
-    for (let i = 0; i < CHAIN_COUNT; i++) {
-        const type = types[i % 3];
-
-        const sizeNoise = noise(i * 0.7, seed * 0.01);
-        const radius = isMobile
-            ? 80 + Math.abs(sizeNoise) * 160
-            : 120 + Math.abs(sizeNoise) * 280;
-
-        const concentricStep = isMobile ? 2.5 : 1.8;
-        const concentricCount = Math.floor(radius / concentricStep);
-
-        // More spread: each shape center spaced further apart
-        const centerY = currentY + radius * 1.2;
-
-        // Plane angle: varied horizontal tilt, not just 90° steps
-        // Mix of perpendicular base + noise-driven angle variation
-        const basePlaneAngle = (i * Math.PI) / 2 + noise(i * 0.6, 5) * Math.PI * 0.4;
-
-        // Horizontal tilt: each shape can lean left/right off the chain axis
-        const horizontalTilt = noise(i * 0.4, 6) * Math.PI * 0.35;
-
-        // Individual spin
-        const spinSpeed = 0.3 + Math.abs(noise(i * 0.5, 1)) * 0.9;
-        const spinDir = noise(i * 0.3, 2) > 0 ? 1 : -1;
-
-        const alpha = 0.5 + Math.abs(noise(i * 0.4, 3)) * 0.35;
-
-        chain.push({
-            type, radius, centerY,
-            concentricStep, concentricCount,
-            basePlaneAngle, horizontalTilt,
-            spinSpeed: spinSpeed * spinDir,
-            alpha,
-        });
-
-        currentY = centerY;
-    }
-
-    // Center the chain
-    const totalHeight = currentY;
-    const offsetY = -totalHeight / 2;
-    for (const s of chain) {
-        s.centerY += offsetY;
-    }
+function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    isMobile = W < 769;
 }
 
-// ── 3D Projection Helpers ───────────────────────────────────────────
-// Each shape lives on a vertical plane through the chain axis.
-// The plane's horizontal direction rotates around Y (the chain/vertical axis).
-// local coords (u, v) → 3D: x = u * cos(angle), y = v, z = u * sin(angle)
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resize, 200);
+});
 
-function projectPoint(lu, lv, centerY, planeAngle, hTilt, chainX, chainScreenY) {
-    // Local u maps to horizontal via plane angle
-    const x3 = lu * Math.cos(planeAngle);
-    const z3 = lu * Math.sin(planeAngle);
+// ── Map node positions to screen ────────────────────────────────────
 
-    // Apply horizontal tilt: rotate the local v (vertical) toward x
-    const cosT = Math.cos(hTilt);
-    const sinT = Math.sin(hTilt);
-    const y3 = lv * cosT + centerY;
-    const x3t = x3 + lv * sinT;
-
-    // Perspective
-    const depth = z3 + PERSPECTIVE;
-    if (depth < 10) return null;
-    const scale = PERSPECTIVE / depth;
+function getNodeScreen(node) {
+    // Tree occupies right portion of screen
+    const treeLeft = isMobile ? W * 0.1 : W * 0.48;
+    const treeRight = isMobile ? W * 0.9 : W * 0.95;
+    const treeTop = H * 0.05;
+    const treeBottom = H * 0.95;
+    const treeW = treeRight - treeLeft;
+    const treeH = treeBottom - treeTop;
 
     return {
-        x: chainX + x3t * scale,
-        y: chainScreenY + y3 * scale,
+        x: treeLeft + node.x * treeW,
+        y: treeTop + node.y * treeH,
     };
 }
 
-// ── Shape Outline Generators (local 2D coords) ─────────────────────
+// ── Draw Concentric Node (p5-style) ─────────────────────────────────
 
-function circlePoints(radius, segments) {
-    const pts = [];
-    for (let i = 0; i <= segments; i++) {
-        const a = (i / segments) * Math.PI * 2;
-        pts.push({ u: Math.cos(a) * radius, v: Math.sin(a) * radius });
-    }
-    return pts;
-}
+function drawNode(node, activation) {
+    const pos = getNodeScreen(node);
+    const baseRadius = (isMobile ? 22 : 35) * node.r;
+    const step = isMobile ? 3 : 2;
+    const count = Math.floor(baseRadius / step);
 
-function squarePoints(radius) {
-    const s = radius;
-    const h = radius * 1.25; // slight aspect ratio like the p5 sketches
-    return [
-        { u: -s, v: -h },
-        { u: s, v: -h },
-        { u: s, v: h },
-        { u: -s, v: h },
-        { u: -s, v: -h }, // close
-    ];
-}
+    // Activation makes node bolder and slightly larger
+    const scale = 1 + activation * 0.2;
+    const baseAlpha = 0.15 + activation * 0.5;
 
-function trianglePoints(radius) {
-    const s = radius;
-    return [
-        { u: 0, v: -s * 1.15 },
-        { u: -s, v: s * 0.65 },
-        { u: s, v: s * 0.65 },
-        { u: 0, v: -s * 1.15 }, // close
-    ];
-}
+    ctx.lineWidth = 0.5 + activation * 0.5;
 
-function getOutline(type, radius, segments) {
-    switch (type) {
-        case 'circle': return circlePoints(radius, segments);
-        case 'square': return squarePoints(radius);
-        case 'triangle': return trianglePoints(radius);
-    }
-}
-
-// ── Draw a Single Chain Shape ───────────────────────────────────────
-
-function drawChainShape(shape, scrollT, chainX, chainScreenY) {
-    const {
-        type, radius, centerY, concentricStep, concentricCount,
-        basePlaneAngle, horizontalTilt, spinSpeed, alpha,
-    } = shape;
-
-    const planeAngle = basePlaneAngle + scrollT * Math.PI * 2 * spinSpeed;
-
-    ctx.strokeStyle = `rgba(0,0,0,${alpha.toFixed(3)})`;
-    ctx.lineWidth = 0.6;
-
-    const segments = type === 'circle' ? CIRCLE_SEGMENTS : undefined;
-
-    for (let c = 1; c <= concentricCount; c++) {
-        const r = c * concentricStep;
-        const outline = getOutline(type, r, segments);
-
+    for (let c = 1; c <= count; c++) {
+        const r = c * step * scale;
+        const fade = c / count;
+        const alpha = baseAlpha * (0.3 + fade * 0.7);
+        ctx.strokeStyle = `rgba(0,0,0,${alpha.toFixed(3)})`;
         ctx.beginPath();
-        let started = false;
-        for (const pt of outline) {
-            const projected = projectPoint(pt.u, pt.v, centerY, planeAngle, horizontalTilt, chainX, chainScreenY);
-            if (!projected) continue;
-            if (!started) {
-                ctx.moveTo(projected.x, projected.y);
-                started = true;
-            } else {
-                ctx.lineTo(projected.x, projected.y);
-            }
-        }
-        if (started) ctx.stroke();
+        ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
+        ctx.stroke();
     }
+
+    // Inner dot for activated nodes
+    if (activation > 0.3) {
+        ctx.fillStyle = `rgba(0,0,0,${(activation * 0.4).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 2 + activation * 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// ── Draw Edge with Pulse ────────────────────────────────────────────
+
+function drawEdge(fromNode, toNode, weight, scrollT) {
+    const from = getNodeScreen(fromNode);
+    const to = getNodeScreen(toNode);
+
+    // Base edge
+    const baseAlpha = 0.08 + weight * 0.12;
+    ctx.strokeStyle = `rgba(0,0,0,${baseAlpha.toFixed(3)})`;
+    ctx.lineWidth = 0.3 + weight * 1.2;
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+
+    // Pulse traveling along edge (scroll-driven)
+    // Pulse position based on scroll + edge depth
+    const edgeDepth = (fromNode.y + toNode.y) / 2;
+    const pulsePhase = (scrollT * 3 - edgeDepth) % 1;
+    if (pulsePhase > 0 && pulsePhase < 0.3) {
+        const t = pulsePhase / 0.3;
+        const px = from.x + (to.x - from.x) * t;
+        const py = from.y + (to.y - from.y) * t;
+        const pulseAlpha = Math.sin(t * Math.PI) * 0.5 * weight;
+
+        // Pulse glow
+        ctx.fillStyle = `rgba(0,0,0,${pulseAlpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(px, py, 2 + weight * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright line segment near pulse
+        const t0 = Math.max(0, t - 0.15);
+        const t1 = Math.min(1, t + 0.05);
+        ctx.strokeStyle = `rgba(0,0,0,${(pulseAlpha * 0.8).toFixed(3)})`;
+        ctx.lineWidth = 0.5 + weight * 2;
+        ctx.beginPath();
+        ctx.moveTo(from.x + (to.x - from.x) * t0, from.y + (to.y - from.y) * t0);
+        ctx.lineTo(from.x + (to.x - from.x) * t1, from.y + (to.y - from.y) * t1);
+        ctx.stroke();
+    }
+}
+
+// ── Sacred Geometry Overlays ────────────────────────────────────────
+
+function drawSacredGeometry(scrollT) {
+    const cx = getNodeScreen(NODES[6]).x; // Tiferet = center
+    const cy = getNodeScreen(NODES[6]).y;
+
+    // Outer circle encompassing the tree
+    const outerR = isMobile ? Math.min(W, H) * 0.42 : H * 0.44;
+    ctx.strokeStyle = `rgba(0,0,0,0.04)`;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Second outer circle
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR * 1.08, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Three pillars (vertical lines)
+    const pillars = [0.22, 0.5, 0.78];
+    const treeLeft = isMobile ? W * 0.1 : W * 0.48;
+    const treeRight = isMobile ? W * 0.9 : W * 0.95;
+    const treeW = treeRight - treeLeft;
+
+    ctx.strokeStyle = `rgba(0,0,0,0.025)`;
+    ctx.lineWidth = 0.5;
+    for (const px of pillars) {
+        const sx = treeLeft + px * treeW;
+        ctx.beginPath();
+        ctx.moveTo(sx, H * 0.02);
+        ctx.lineTo(sx, H * 0.98);
+        ctx.stroke();
+    }
+
+    // Rotating hexagram (Star of David) — slow rotation from scroll
+    const hexAngle = scrollT * Math.PI * 0.5;
+    const hexR = outerR * 0.55;
+    ctx.strokeStyle = `rgba(0,0,0,0.035)`;
+    ctx.lineWidth = 0.5;
+
+    // Upward triangle
+    ctx.beginPath();
+    for (let i = 0; i <= 3; i++) {
+        const a = hexAngle + (i * Math.PI * 2) / 3 - Math.PI / 2;
+        const px = cx + Math.cos(a) * hexR;
+        const py = cy + Math.sin(a) * hexR;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Downward triangle
+    ctx.beginPath();
+    for (let i = 0; i <= 3; i++) {
+        const a = hexAngle + (i * Math.PI * 2) / 3 + Math.PI / 2;
+        const px = cx + Math.cos(a) * hexR;
+        const py = cy + Math.sin(a) * hexR;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+
+    // Small circles at each node position (Rosicrucian rose points)
+    for (const node of NODES) {
+        const pos = getNodeScreen(node);
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+}
+
+// ── Compute Node Activations ────────────────────────────────────────
+// Activation flows top-to-bottom driven by scroll.
+
+function getActivation(node, scrollT) {
+    // Wave of activation flowing down the tree
+    const wave = scrollT * 1.5;
+    const dist = Math.abs(node.y - wave);
+    return Math.max(0, 1 - dist * 3);
 }
 
 // ── Mouse Proximity Text Scaling ────────────────────────────────────
@@ -261,51 +278,31 @@ document.addEventListener('mouseleave', () => {
     });
 });
 
-// ── Resize ──────────────────────────────────────────────────────────
-
-function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth;
-    H = window.innerHeight;
-    canvas.width = W * dpr;
-    canvas.height = H * dpr;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    isMobile = W < 769;
-    cacheSections();
-}
-
-let resizeTimer;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { resize(); buildChain(); }, 250);
-});
-
-function cacheSections() {
-    sectionEls = Array.from(document.querySelectorAll('.section'));
-    sectionTops = sectionEls.map(el => el.offsetTop);
-}
-
 // ── Animation Loop ──────────────────────────────────────────────────
 
-function frame() {
+function frame(ts) {
+    time = ts * 0.001;
+
     const scrollY = window.scrollY;
     const maxScroll = document.documentElement.scrollHeight - H;
     const scrollT = maxScroll > 0 ? scrollY / maxScroll : 0;
-
-    // Chain position on screen
-    const chainX = isMobile ? W * 0.5 : W * 0.65;
-    // Scroll shifts the chain upward so you travel down the full chain
-    const chainScreenY = H * 0.5 - scrollT * H * 4;
 
     // Clear
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
-    // Draw each shape in the chain
-    for (const shape of chain) {
-        drawChainShape(shape, scrollT, chainX, chainScreenY);
+    // Sacred geometry background layer
+    drawSacredGeometry(scrollT);
+
+    // Draw edges with pulses
+    for (const [fromId, toId, weight] of EDGES) {
+        drawEdge(NODES[fromId], NODES[toId], weight, scrollT);
+    }
+
+    // Draw nodes with activation
+    for (const node of NODES) {
+        const activation = getActivation(node, scrollT);
+        drawNode(node, activation);
     }
 
     requestAnimationFrame(frame);
@@ -315,7 +312,6 @@ function frame() {
 
 function init() {
     resize();
-    buildChain();
     requestAnimationFrame(frame);
 }
 
