@@ -58,56 +58,58 @@ let sectionTops = [];
 
 // ── Chain Configuration ─────────────────────────────────────────────
 
-const CHAIN_COUNT = 14;
+const CHAIN_COUNT = isMobile ? 22 : 35;
 const PERSPECTIVE = 600;
-const CIRCLE_SEGMENTS = 64; // points per concentric circle outline
+const CIRCLE_SEGMENTS = 64;
 
 let chain = [];
 
 function buildChain() {
     chain = [];
     const types = ['circle', 'square', 'triangle'];
-    const baseRadius = isMobile ? 65 : 95;
 
-    // Build chain: each shape's top edge = previous shape's center
-    let currentY = 0; // will be centered later
+    let currentY = 0;
 
     for (let i = 0; i < CHAIN_COUNT; i++) {
         const type = types[i % 3];
-        const radius = baseRadius + noise(i * 0.7, seed * 0.01) * 25;
-        const concentricStep = isMobile ? 3 : 2;
+
+        // Varied sizes: mix of small, medium, large
+        const sizeNoise = noise(i * 0.7, seed * 0.01);
+        const radius = isMobile
+            ? 30 + Math.abs(sizeNoise) * 80
+            : 35 + Math.abs(sizeNoise) * 120;
+
+        const concentricStep = isMobile ? 2.5 : 1.8;
         const concentricCount = Math.floor(radius / concentricStep);
 
-        // This shape's center: top edge at previous center → center is at currentY + radius
-        const centerY = currentY + radius;
+        // Overlap: top edge at previous center
+        const centerY = currentY + radius * 0.75; // tighter packing
 
-        // Plane angle: each shape's plane is 90° from previous around Y axis
-        // Shape 0: angle 0 (faces viewer)
-        // Shape 1: angle PI/2 (perpendicular, going into screen)
-        // Shape 2: angle PI (faces away, but we see the back → same as 0 visually)
-        // Shape 3: angle 3PI/2
-        const basePlaneAngle = (i * Math.PI) / 2;
+        // Plane angle: varied horizontal tilt, not just 90° steps
+        // Mix of perpendicular base + noise-driven angle variation
+        const basePlaneAngle = (i * Math.PI) / 2 + noise(i * 0.6, 5) * Math.PI * 0.4;
 
-        // Individual spin speed (scroll-driven)
-        const spinSpeed = 0.4 + Math.abs(noise(i * 0.5, 1)) * 0.8;
+        // Horizontal tilt: each shape can lean left/right off the chain axis
+        const horizontalTilt = noise(i * 0.4, 6) * Math.PI * 0.35;
+
+        // Individual spin
+        const spinSpeed = 0.3 + Math.abs(noise(i * 0.5, 1)) * 0.9;
         const spinDir = noise(i * 0.3, 2) > 0 ? 1 : -1;
 
-        // Opacity
-        const alpha = 0.6 + noise(i * 0.4, 3) * 0.25;
+        const alpha = 0.5 + Math.abs(noise(i * 0.4, 3)) * 0.35;
 
         chain.push({
             type, radius, centerY,
             concentricStep, concentricCount,
-            basePlaneAngle,
+            basePlaneAngle, horizontalTilt,
             spinSpeed: spinSpeed * spinDir,
             alpha,
         });
 
-        // Next shape starts at this shape's center
         currentY = centerY;
     }
 
-    // Center the whole chain vertically (we'll offset with scroll)
+    // Center the chain
     const totalHeight = currentY;
     const offsetY = -totalHeight / 2;
     for (const s of chain) {
@@ -120,11 +122,16 @@ function buildChain() {
 // The plane's horizontal direction rotates around Y (the chain/vertical axis).
 // local coords (u, v) → 3D: x = u * cos(angle), y = v, z = u * sin(angle)
 
-function projectPoint(lu, lv, centerY, planeAngle, chainX, chainScreenY) {
-    // 3D position
+function projectPoint(lu, lv, centerY, planeAngle, hTilt, chainX, chainScreenY) {
+    // Local u maps to horizontal via plane angle
     const x3 = lu * Math.cos(planeAngle);
-    const y3 = lv + centerY;
     const z3 = lu * Math.sin(planeAngle);
+
+    // Apply horizontal tilt: rotate the local v (vertical) toward x
+    const cosT = Math.cos(hTilt);
+    const sinT = Math.sin(hTilt);
+    const y3 = lv * cosT + centerY;
+    const x3t = x3 + lv * sinT;
 
     // Perspective
     const depth = z3 + PERSPECTIVE;
@@ -132,7 +139,7 @@ function projectPoint(lu, lv, centerY, planeAngle, chainX, chainScreenY) {
     const scale = PERSPECTIVE / depth;
 
     return {
-        x: chainX + x3 * scale,
+        x: chainX + x3t * scale,
         y: chainScreenY + y3 * scale,
     };
 }
@@ -183,10 +190,9 @@ function getOutline(type, radius, segments) {
 function drawChainShape(shape, scrollT, chainX, chainScreenY) {
     const {
         type, radius, centerY, concentricStep, concentricCount,
-        basePlaneAngle, spinSpeed, alpha,
+        basePlaneAngle, horizontalTilt, spinSpeed, alpha,
     } = shape;
 
-    // Plane angle = base perpendicular offset + scroll-driven individual spin
     const planeAngle = basePlaneAngle + scrollT * Math.PI * 2 * spinSpeed;
 
     ctx.strokeStyle = `rgba(0,0,0,${alpha.toFixed(3)})`;
@@ -198,11 +204,10 @@ function drawChainShape(shape, scrollT, chainX, chainScreenY) {
         const r = c * concentricStep;
         const outline = getOutline(type, r, segments);
 
-        // Project each point
         ctx.beginPath();
         let started = false;
         for (const pt of outline) {
-            const projected = projectPoint(pt.u, pt.v, centerY, planeAngle, chainX, chainScreenY);
+            const projected = projectPoint(pt.u, pt.v, centerY, planeAngle, horizontalTilt, chainX, chainScreenY);
             if (!projected) continue;
             if (!started) {
                 ctx.moveTo(projected.x, projected.y);
@@ -292,8 +297,8 @@ function frame() {
 
     // Chain position on screen
     const chainX = isMobile ? W * 0.5 : W * 0.65;
-    // Scroll shifts the chain upward so you travel down it
-    const chainScreenY = H * 0.5 - scrollT * H * 1.5;
+    // Scroll shifts the chain upward so you travel down the full chain
+    const chainScreenY = H * 0.5 - scrollT * H * 2.5;
 
     // Clear
     ctx.fillStyle = '#ffffff';
