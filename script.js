@@ -58,7 +58,7 @@ let sectionTops = [];
 
 // ── Chain Configuration ─────────────────────────────────────────────
 
-const CHAIN_COUNT = isMobile ? 30 : 50;
+const CHAIN_COUNT = isMobile ? 16 : 25;
 const PERSPECTIVE = 600;
 const CIRCLE_SEGMENTS = 64;
 
@@ -73,11 +73,10 @@ function buildChain() {
     for (let i = 0; i < CHAIN_COUNT; i++) {
         const type = types[i % 3];
 
-        // Bigger sizes with more variation
         const sizeNoise = noise(i * 0.7, seed * 0.01);
         const radius = isMobile
-            ? 50 + Math.abs(sizeNoise) * 120
-            : 70 + Math.abs(sizeNoise) * 180;
+            ? 80 + Math.abs(sizeNoise) * 160
+            : 120 + Math.abs(sizeNoise) * 280;
 
         const concentricStep = isMobile ? 2.5 : 1.8;
         const concentricCount = Math.floor(radius / concentricStep);

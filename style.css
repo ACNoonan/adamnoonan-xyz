@@ -52,8 +52,9 @@ main {
 }
 
 .section--hero {
-    min-height: 100vh;
-    padding-bottom: 12vh;
+    min-height: auto;
+    padding-top: 15vh;
+    padding-bottom: 6vh;
 }
 
 .section__content {
