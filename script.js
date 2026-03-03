@@ -58,7 +58,7 @@ let sectionTops = [];
 
 // ── Chain Configuration ─────────────────────────────────────────────
 
-const CHAIN_COUNT = isMobile ? 22 : 35;
+const CHAIN_COUNT = isMobile ? 30 : 50;
 const PERSPECTIVE = 600;
 const CIRCLE_SEGMENTS = 64;
 
@@ -73,17 +73,17 @@ function buildChain() {
     for (let i = 0; i < CHAIN_COUNT; i++) {
         const type = types[i % 3];
 
-        // Varied sizes: mix of small, medium, large
+        // Bigger sizes with more variation
         const sizeNoise = noise(i * 0.7, seed * 0.01);
         const radius = isMobile
-            ? 30 + Math.abs(sizeNoise) * 80
-            : 35 + Math.abs(sizeNoise) * 120;
+            ? 50 + Math.abs(sizeNoise) * 120
+            : 70 + Math.abs(sizeNoise) * 180;
 
         const concentricStep = isMobile ? 2.5 : 1.8;
         const concentricCount = Math.floor(radius / concentricStep);
 
-        // Overlap: top edge at previous center
-        const centerY = currentY + radius * 0.75; // tighter packing
+        // More spread: each shape center spaced further apart
+        const centerY = currentY + radius * 1.2;
 
         // Plane angle: varied horizontal tilt, not just 90° steps
         // Mix of perpendicular base + noise-driven angle variation
@@ -298,7 +298,7 @@ function frame() {
     // Chain position on screen
     const chainX = isMobile ? W * 0.5 : W * 0.65;
     // Scroll shifts the chain upward so you travel down the full chain
-    const chainScreenY = H * 0.5 - scrollT * H * 2.5;
+    const chainScreenY = H * 0.5 - scrollT * H * 4;
 
     // Clear
     ctx.fillStyle = '#ffffff';
