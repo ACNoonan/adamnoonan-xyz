@@ -4,17 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adam Noonan</title>
+    <meta name="description" content="Adam Noonan — Co-founder at Dojo, building hyperlocal AI in Madrid and Ibiza.">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="terminal">
-        <div id="output"></div>
-        <div id="options"></div>
-        <div class="input-line" style="display: none;">
-            <span class="prompt">></span>
-            <input type="text" id="input" autofocus>
-        </div>
-    </div>
+    <canvas id="canvas"></canvas>
+
+    <main>
+        <section class="section section--hero" data-section="hero">
+            <div class="section__content">
+                <h1 class="proximity-text hero__name">Adam Noonan</h1>
+                <p class="proximity-text hero__subtitle">building hyperlocal ai at <a href="https://hellodojo.ai" target="_blank" rel="noopener">dojo</a></p>
+            </div>
+        </section>
+
+        <section class="section" data-section="about">
+            <div class="section__content">
+                <h2 class="proximity-text section__heading">About</h2>
+                <p class="proximity-text">Co-founder based in Madrid and Ibiza.</p>
+                <p class="proximity-text">Previously solutions engineering at Celonis/Lenses.io and NetApp.</p>
+                <p class="proximity-text">Teaches AI engineering at Immune Technology Institute, Madrid.</p>
+                <p class="proximity-text">Into generative art, GIS, AI voice agents, and kettlebells.</p>
+                <p class="proximity-text">Walked the Camino de Santiago. Speaks English and Spanish.</p>
+            </div>
+        </section>
+
+        <section class="section" data-section="background">
+            <div class="section__content">
+                <h2 class="proximity-text section__heading">Background</h2>
+                <div class="timeline">
+                    <div class="timeline__entry proximity-text">
+                        <span class="timeline__date">2025&ndash;Present</span>
+                        <span class="timeline__role">Co-Founder, Dojo &mdash; Madrid / Ibiza</span>
+                    </div>
+                    <div class="timeline__entry proximity-text">
+                        <span class="timeline__date">2023&ndash;2025</span>
+                        <span class="timeline__role">Lead Strategic Solutions Engineer, Lenses.io / Celonis</span>
+                    </div>
+                    <div class="timeline__entry proximity-text">
+                        <span class="timeline__date">2021&ndash;2023</span>
+                        <span class="timeline__role">Senior Solutions Architect, Celonis</span>
+                    </div>
+                    <div class="timeline__entry proximity-text">
+                        <span class="timeline__date">2020&ndash;2021</span>
+                        <span class="timeline__role">Enterprise Solutions Engineer, NetApp</span>
+                    </div>
+                    <div class="timeline__entry proximity-text">
+                        <span class="timeline__date">2019&ndash;2020</span>
+                        <span class="timeline__role">IT Developer, AW North Carolina</span>
+                    </div>
+                    <div class="timeline__entry proximity-text">
+                        <span class="timeline__date">2018&ndash;2019</span>
+                        <span class="timeline__role">Data Science Fellow, SOFWERX</span>
+                    </div>
+                </div>
+                <div class="education proximity-text">
+                    <p class="education__label">Education</p>
+                    <p>UT Austin MS &middot; MIT Sloan &middot; ECU BBA</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" data-section="contact">
+            <div class="section__content">
+                <h2 class="proximity-text section__heading">Get in touch</h2>
+                <a href="mailto:adamnoonan@protonmail.com" class="proximity-text section__link">adamnoonan@protonmail.com</a>
+                <div class="social-links">
+                    <a href="https://linkedin.com/in/adam-noonan/" target="_blank" rel="noopener" class="proximity-text section__link">LinkedIn</a>
+                    <a href="https://x.com/_adamnoonan" target="_blank" rel="noopener" class="proximity-text section__link">X</a>
+                    <a href="https://github.com/ACNoonan" target="_blank" rel="noopener" class="proximity-text section__link">GitHub</a>
+                </div>
+                <p class="proximity-text reload-hint">Reload for a new composition.</p>
+            </div>
+        </section>
+    </main>
+
     <script src="script.js"></script>
 </body>
 </html>
