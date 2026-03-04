@@ -20,7 +20,7 @@ function resize() {
 let resizeTimer;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resize, 200);
+    resizeTimer = setTimeout(() => { resize(); path = buildPath(); }, 200);
 });
 
 function getScrollT() {
@@ -28,92 +28,88 @@ function getScrollT() {
     return max > 0 ? window.scrollY / max : 0;
 }
 
-// ── Single Continuous Line ──────────────────────────────────────────
-// One thin line traces sacred geometry as you scroll.
-// Total path: circle → triangle → hexagon → flower of life petals → spiral out
-// scrollT controls how far along the path has been "drawn"
+// ── Path Builder ────────────────────────────────────────────────────
+// Builds a Seed of Life → Hexagram → Outer Ring
+// One continuous line. All connecting segments run through shared
+// intersection points so they're invisible in the final image.
+// Final point = first point (closed form).
 
 function buildPath() {
     const cx = isMobile ? W * 0.5 : W * 0.68;
     const cy = H * 0.5;
-    const baseR = Math.min(W, H) * (isMobile ? 0.3 : 0.22);
-    const points = [];
+    const R = Math.min(W, H) * (isMobile ? 0.25 : 0.2);
+    const pts = [];
 
-    // Phase 1 (0.00–0.15): Circle
-    const circleSteps = 200;
-    for (let i = 0; i <= circleSteps; i++) {
-        const a = (i / circleSteps) * Math.PI * 2;
-        points.push({ x: cx + Math.cos(a) * baseR, y: cy + Math.sin(a) * baseR });
-    }
-
-    // Phase 2 (0.15–0.30): Triangle inscribed
-    const triR = baseR * 0.95;
-    const triSteps = 80;
-    for (let side = 0; side < 3; side++) {
-        const a1 = -Math.PI / 2 + (side * Math.PI * 2) / 3;
-        const a2 = -Math.PI / 2 + ((side + 1) * Math.PI * 2) / 3;
-        for (let i = 0; i <= triSteps; i++) {
-            const t = i / triSteps;
-            points.push({
-                x: cx + Math.cos(a1) * triR + (Math.cos(a2) - Math.cos(a1)) * triR * t,
-                y: cy + Math.sin(a1) * triR + (Math.sin(a2) - Math.sin(a1)) * triR * t,
-            });
+    function arc(x, y, r, from, to, n) {
+        for (let i = 0; i <= n; i++) {
+            const a = from + (to - from) * (i / n);
+            pts.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r });
         }
     }
 
-    // Phase 3 (0.30–0.50): Hexagon + inner star
-    const hexR = baseR * 0.85;
-    // Hexagon
-    for (let side = 0; side < 6; side++) {
-        const a1 = (side * Math.PI) / 3;
-        const a2 = ((side + 1) * Math.PI) / 3;
-        const steps = 50;
-        for (let i = 0; i <= steps; i++) {
-            const t = i / steps;
-            points.push({
-                x: cx + Math.cos(a1) * hexR + (Math.cos(a2) - Math.cos(a1)) * hexR * t,
-                y: cy + Math.sin(a1) * hexR + (Math.sin(a2) - Math.sin(a1)) * hexR * t,
-            });
+    function line(x1, y1, x2, y2, n) {
+        for (let i = 0; i <= n; i++) {
+            const t = i / n;
+            pts.push({ x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t });
         }
     }
-    // Inner star (connect every other vertex)
+
+    // ── 1. Center circle (start at top, clockwise) ──
+    arc(cx, cy, R, -Math.PI / 2, Math.PI * 3 / 2, 180);
+
+    // ── 2. Six petals (Seed of Life) ──
+    // Each petal center is on the center circle.
+    // Each petal circle passes through main center (cx, cy).
+    // We enter each petal at the center, trace the full circle, exit at center.
     for (let i = 0; i < 6; i++) {
-        const a1 = (i * Math.PI) / 3;
-        const a2 = ((i + 2) * Math.PI) / 3;
-        const steps = 40;
-        for (let j = 0; j <= steps; j++) {
-            const t = j / steps;
-            points.push({
-                x: cx + Math.cos(a1) * hexR * (1 - t) + Math.cos(a2) * hexR * t,
-                y: cy + Math.sin(a1) * hexR * (1 - t) + Math.sin(a2) * hexR * t,
-            });
-        }
+        const pa = -Math.PI / 2 + i * Math.PI / 3;
+        const pcx = cx + Math.cos(pa) * R;
+        const pcy = cy + Math.sin(pa) * R;
+
+        // Connect to center (shared point of all petals)
+        const last = pts[pts.length - 1];
+        line(last.x, last.y, cx, cy, 8);
+
+        // Entry angle on petal: direction from petal center toward main center
+        const entry = Math.atan2(cy - pcy, cx - pcx);
+        arc(pcx, pcy, R, entry, entry + Math.PI * 2, 140);
     }
 
-    // Phase 4 (0.50–0.75): Flower of Life petals (6 circles around center)
-    const petalR = baseR * 0.5;
-    for (let p = 0; p < 6; p++) {
-        const angle = (p * Math.PI) / 3;
-        const pcx = cx + Math.cos(angle) * petalR;
-        const pcy = cy + Math.sin(angle) * petalR;
-        const steps = 120;
-        for (let i = 0; i <= steps; i++) {
-            const a = (i / steps) * Math.PI * 2;
-            points.push({ x: pcx + Math.cos(a) * petalR, y: pcy + Math.sin(a) * petalR });
-        }
-    }
+    // ── 3. Hexagram (two interlocking triangles) ──
+    // Vertices sit on the center circle at the petal centers.
+    const last3 = pts[pts.length - 1];
+    // Triangle 1: vertices at -90°, 30°, 150°
+    const t1 = [0, 2, 4].map(i => {
+        const a = -Math.PI / 2 + i * Math.PI / 3;
+        return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R };
+    });
+    line(last3.x, last3.y, t1[0].x, t1[0].y, 6);
+    line(t1[0].x, t1[0].y, t1[1].x, t1[1].y, 40);
+    line(t1[1].x, t1[1].y, t1[2].x, t1[2].y, 40);
+    line(t1[2].x, t1[2].y, t1[0].x, t1[0].y, 40);
 
-    // Phase 5 (0.75–1.00): Spiral outward
-    const spiralTurns = 3;
-    const spiralSteps = 300;
-    for (let i = 0; i <= spiralSteps; i++) {
-        const t = i / spiralSteps;
-        const a = t * spiralTurns * Math.PI * 2;
-        const r = baseR * (1 + t * 0.8);
-        points.push({ x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r });
-    }
+    // Triangle 2: vertices at -30°, 90°, 210°
+    const t2 = [1, 3, 5].map(i => {
+        const a = -Math.PI / 2 + i * Math.PI / 3;
+        return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R };
+    });
+    line(t1[0].x, t1[0].y, t2[0].x, t2[0].y, 6);
+    line(t2[0].x, t2[0].y, t2[1].x, t2[1].y, 40);
+    line(t2[1].x, t2[1].y, t2[2].x, t2[2].y, 40);
+    line(t2[2].x, t2[2].y, t2[0].x, t2[0].y, 40);
 
-    return points;
+    // ── 4. Outer circle (frames the whole form) ──
+    const outerR = R * 1.85;
+    const lastOuter = pts[pts.length - 1];
+    const outerTop = { x: cx, y: cy - outerR };
+    line(lastOuter.x, lastOuter.y, outerTop.x, outerTop.y, 12);
+    arc(cx, cy, outerR, -Math.PI / 2, Math.PI * 3 / 2, 220);
+
+    // ── 5. Close: return to first point ──
+    const fin = pts[pts.length - 1];
+    line(fin.x, fin.y, pts[0].x, pts[0].y, 15);
+
+    return pts;
 }
 
 let path = [];
@@ -122,23 +118,20 @@ let path = [];
 
 const proximityRadius = 200;
 const maxScale = 1.12;
+let mouse = { x: -9999, y: -9999 };
 
 function updateTextProximity() {
     if (isMobile) return;
     const els = document.querySelectorAll('.proximity-text');
-    const mx = mouse.x, my = mouse.y;
     for (const el of els) {
-        const rect = el.getBoundingClientRect();
-        const ecx = rect.left + rect.width / 2;
-        const ecy = rect.top + rect.height / 2;
-        const dist = Math.sqrt((mx - ecx) ** 2 + (my - ecy) ** 2);
+        const r = el.getBoundingClientRect();
+        const dist = Math.sqrt((mouse.x - r.left - r.width / 2) ** 2 + (mouse.y - r.top - r.height / 2) ** 2);
         el.style.transform = dist < proximityRadius
             ? `scale(${1 + (maxScale - 1) * ((1 - dist / proximityRadius) ** 2)})`
             : '';
     }
 }
 
-let mouse = { x: -9999, y: -9999 };
 document.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX; mouse.y = e.clientY;
     updateTextProximity();
@@ -148,19 +141,19 @@ document.addEventListener('mouseleave', () => {
     document.querySelectorAll('.proximity-text').forEach(el => el.style.transform = '');
 });
 
-// ── Animation Loop ──────────────────────────────────────────────────
+// ── Render ──────────────────────────────────────────────────────────
 
 function frame() {
     const scrollT = getScrollT();
+    const drawCount = Math.floor(scrollT * path.length);
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
-    // Draw the path up to scrollT
-    const drawCount = Math.floor(scrollT * path.length);
     if (drawCount < 2) { requestAnimationFrame(frame); return; }
 
-    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    // Main line
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
     ctx.lineWidth = 0.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -171,14 +164,23 @@ function frame() {
     }
     ctx.stroke();
 
-    // Draw head dot at current position
-    if (drawCount > 0) {
-        const head = path[drawCount - 1];
-        ctx.fillStyle = 'rgba(0,0,0,0.5)';
-        ctx.beginPath();
-        ctx.arc(head.x, head.y, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+    // Fresh ink: last ~3% of drawn path is slightly bolder
+    const freshStart = Math.max(1, drawCount - Math.floor(path.length * 0.03));
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(path[freshStart].x, path[freshStart].y);
+    for (let i = freshStart + 1; i < drawCount; i++) {
+        ctx.lineTo(path[i].x, path[i].y);
     }
+    ctx.stroke();
+
+    // Drawing head dot
+    const head = path[drawCount - 1];
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, 2, 0, Math.PI * 2);
+    ctx.fill();
 
     requestAnimationFrame(frame);
 }
@@ -190,10 +192,5 @@ function init() {
     path = buildPath();
     requestAnimationFrame(frame);
 }
-
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { resize(); path = buildPath(); }, 200);
-});
 
 document.addEventListener('DOMContentLoaded', init);
