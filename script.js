@@ -230,10 +230,12 @@ function drawSacredGeometry(scrollT) {
 // Activation flows top-to-bottom driven by scroll.
 
 function getActivation(node, scrollT) {
-    // Wave of activation flowing down the tree
-    const wave = scrollT * 1.5;
+    // Wave sweeps from top (y=0.04) at scrollT=0 to bottom (y=0.88) at scrollT=1
+    const topY = 0.04;
+    const bottomY = 0.88;
+    const wave = topY + scrollT * (bottomY - topY);
     const dist = Math.abs(node.y - wave);
-    return Math.max(0, 1 - dist * 3);
+    return Math.max(0, 1 - dist * 2.5);
 }
 
 // ── Mouse Proximity Text Scaling ────────────────────────────────────
