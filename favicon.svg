@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="13 13 74 74" width="32" height="32">
+  <circle cx="50" cy="50" r="37" fill="#ffffff"/>
   <g fill="none" stroke="rgba(0,0,0,0.5)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
     <!-- Center circle -->
     <circle cx="50" cy="50" r="20"/>
