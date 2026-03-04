@@ -145,15 +145,22 @@ document.addEventListener('mouseleave', () => {
 
 function frame() {
     const scrollT = getScrollT();
-    const drawCount = Math.floor(scrollT * path.length);
+
+    // Drawing completes at 75% scroll; remaining 25% shows the finished shape
+    const drawT = Math.min(scrollT / 0.75, 1);
+    const drawCount = Math.floor(drawT * path.length);
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
     if (drawCount < 2) { requestAnimationFrame(frame); return; }
 
-    // Main line
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+    // How close to complete (0→1 over last 10% of drawing)
+    const completeness = Math.min(1, Math.max(0, (drawT - 0.9) / 0.1));
+
+    // Main line — opacity increases as shape completes for uniform look
+    const mainAlpha = 0.3 + completeness * 0.1;
+    ctx.strokeStyle = `rgba(0,0,0,${mainAlpha})`;
     ctx.lineWidth = 0.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -164,23 +171,26 @@ function frame() {
     }
     ctx.stroke();
 
-    // Fresh ink: last ~3% of drawn path is slightly bolder
-    const freshStart = Math.max(1, drawCount - Math.floor(path.length * 0.03));
-    ctx.strokeStyle = 'rgba(0,0,0,0.55)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(path[freshStart].x, path[freshStart].y);
-    for (let i = freshStart + 1; i < drawCount; i++) {
-        ctx.lineTo(path[i].x, path[i].y);
-    }
-    ctx.stroke();
+    // Fresh ink: fades out as drawing completes
+    if (completeness < 1) {
+        const freshFade = 1 - completeness;
+        const freshStart = Math.max(1, drawCount - Math.floor(path.length * 0.03));
+        ctx.strokeStyle = `rgba(0,0,0,${0.55 * freshFade})`;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(path[freshStart].x, path[freshStart].y);
+        for (let i = freshStart + 1; i < drawCount; i++) {
+            ctx.lineTo(path[i].x, path[i].y);
+        }
+        ctx.stroke();
 
-    // Drawing head dot
-    const head = path[drawCount - 1];
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.beginPath();
-    ctx.arc(head.x, head.y, 2, 0, Math.PI * 2);
-    ctx.fill();
+        // Drawing head dot — also fades out
+        const head = path[drawCount - 1];
+        ctx.fillStyle = `rgba(0,0,0,${0.6 * freshFade})`;
+        ctx.beginPath();
+        ctx.arc(head.x, head.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+    }
 
     requestAnimationFrame(frame);
 }
