@@ -1,47 +1,59 @@
+// ── Which version? ──────────────────────────────────────────────────
+// Use ?v=1 through ?v=5 in URL
+
+const VERSION = parseInt(new URLSearchParams(location.search).get('v')) || 1;
+
+// ── Simplex Noise ───────────────────────────────────────────────────
+
+const SimplexNoise = (() => {
+    const F2 = 0.5 * (Math.sqrt(3) - 1);
+    const G2 = (3 - Math.sqrt(3)) / 6;
+    const grad = [[1,1],[-1,1],[1,-1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
+    function create(seed) {
+        const perm = new Uint8Array(512);
+        const p = new Uint8Array(256);
+        let s = seed | 0;
+        for (let i = 0; i < 256; i++) p[i] = i;
+        for (let i = 255; i > 0; i--) {
+            s = (s * 16807 + 0) % 2147483647;
+            const j = s % (i + 1);
+            [p[i], p[j]] = [p[j], p[i]];
+        }
+        for (let i = 0; i < 512; i++) perm[i] = p[i & 255];
+        return function(x, y) {
+            const s2 = (x + y) * F2;
+            const i = Math.floor(x + s2), j = Math.floor(y + s2);
+            const t = (i + j) * G2;
+            const x0 = x - (i - t), y0 = y - (j - t);
+            const i1 = x0 > y0 ? 1 : 0, j1 = x0 > y0 ? 0 : 1;
+            const x1 = x0 - i1 + G2, y1 = y0 - j1 + G2;
+            const x2 = x0 - 1 + 2*G2, y2 = y0 - 1 + 2*G2;
+            const ii = i & 255, jj = j & 255;
+            let n0=0,n1=0,n2=0;
+            let t0 = 0.5-x0*x0-y0*y0;
+            if(t0>0){t0*=t0;const g=grad[perm[ii+perm[jj]]&7];n0=t0*t0*(g[0]*x0+g[1]*y0);}
+            let t1=0.5-x1*x1-y1*y1;
+            if(t1>0){t1*=t1;const g=grad[perm[ii+i1+perm[jj+j1]]&7];n1=t1*t1*(g[0]*x1+g[1]*y1);}
+            let t2=0.5-x2*x2-y2*y2;
+            if(t2>0){t2*=t2;const g=grad[perm[ii+1+perm[jj+1]]&7];n2=t2*t2*(g[0]*x2+g[1]*y2);}
+            return 70*(n0+n1+n2);
+        };
+    }
+    return { create };
+})();
+
 // ── Globals ─────────────────────────────────────────────────────────
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const seed = Math.random() * 2147483647;
+const noise = SimplexNoise.create(seed);
+const noise2 = SimplexNoise.create(seed + 7919);
 
 let W, H, dpr;
 let mouse = { x: -9999, y: -9999 };
 let isMobile = window.innerWidth < 769;
 let time = 0;
-
-// ── Tree of Life / Neural Net Layout ────────────────────────────────
-// 10 Sephirot arranged in three pillars, plus Da'at (hidden/knowledge).
-// Positions are normalized 0–1, mapped to screen in render.
-
-const NODES = [
-    // id, x (0-1), y (0-1), radius multiplier, name
-    { id: 0,  x: 0.5,  y: 0.04, r: 1.1,  name: 'Keter' },      // Crown
-    { id: 1,  x: 0.78, y: 0.14, r: 0.9,  name: 'Chokmah' },    // Wisdom
-    { id: 2,  x: 0.22, y: 0.14, r: 0.9,  name: 'Binah' },      // Understanding
-    { id: 3,  x: 0.5,  y: 0.22, r: 0.6,  name: 'Daat' },       // Knowledge (hidden)
-    { id: 4,  x: 0.78, y: 0.36, r: 0.85, name: 'Chesed' },     // Mercy
-    { id: 5,  x: 0.22, y: 0.36, r: 0.85, name: 'Gevurah' },    // Severity
-    { id: 6,  x: 0.5,  y: 0.46, r: 1.0,  name: 'Tiferet' },    // Beauty
-    { id: 7,  x: 0.78, y: 0.60, r: 0.8,  name: 'Netzach' },    // Victory
-    { id: 8,  x: 0.22, y: 0.60, r: 0.8,  name: 'Hod' },        // Splendor
-    { id: 9,  x: 0.5,  y: 0.72, r: 0.75, name: 'Yesod' },      // Foundation
-    { id: 10, x: 0.5,  y: 0.88, r: 1.05, name: 'Malkuth' },    // Kingdom
-];
-
-// 22 paths (edges) — the classic Tree of Life connections
-// Each edge: [fromId, toId, weight (neural net style)]
-const EDGES = [
-    [0, 1, 0.8],  [0, 2, 0.8],  [0, 6, 0.6],
-    [1, 2, 0.5],  [1, 3, 0.4],  [1, 4, 0.7],  [1, 6, 0.5],
-    [2, 3, 0.4],  [2, 5, 0.7],  [2, 6, 0.5],
-    [3, 4, 0.3],  [3, 5, 0.3],
-    [4, 5, 0.5],  [4, 6, 0.6],  [4, 7, 0.7],
-    [5, 6, 0.6],  [5, 8, 0.7],
-    [6, 7, 0.5],  [6, 8, 0.5],  [6, 9, 0.7],
-    [7, 9, 0.6],  [8, 9, 0.6],
-    [9, 10, 0.9],
-];
-
-// ── Resize ──────────────────────────────────────────────────────────
 
 function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -53,6 +65,7 @@ function resize() {
     canvas.style.height = H + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     isMobile = W < 769;
+    if (versions[VERSION] && versions[VERSION].init) versions[VERSION].init();
 }
 
 let resizeTimer;
@@ -61,182 +74,441 @@ window.addEventListener('resize', () => {
     resizeTimer = setTimeout(resize, 200);
 });
 
-// ── Map node positions to screen ────────────────────────────────────
+// ── Shared: concentric circle node ──────────────────────────────────
 
-function getNodeScreen(node) {
-    // Tree occupies right portion of screen
-    const treeLeft = isMobile ? W * 0.1 : W * 0.48;
-    const treeRight = isMobile ? W * 0.9 : W * 0.95;
-    const treeTop = H * 0.05;
-    const treeBottom = H * 0.95;
-    const treeW = treeRight - treeLeft;
-    const treeH = treeBottom - treeTop;
-
-    return {
-        x: treeLeft + node.x * treeW,
-        y: treeTop + node.y * treeH,
-    };
-}
-
-// ── Draw Concentric Node (p5-style) ─────────────────────────────────
-
-function drawNode(node, activation) {
-    const pos = getNodeScreen(node);
-    const baseRadius = (isMobile ? 22 : 35) * node.r;
-    const step = isMobile ? 3 : 2;
-    const count = Math.floor(baseRadius / step);
-
-    // Activation makes node bolder and slightly larger
-    const scale = 1 + activation * 0.2;
-    const baseAlpha = 0.15 + activation * 0.5;
-
-    ctx.lineWidth = 0.5 + activation * 0.5;
-
+function drawConcentricCircle(x, y, radius, alpha, step) {
+    step = step || (isMobile ? 2.5 : 1.8);
+    const count = Math.floor(radius / step);
+    ctx.lineWidth = 0.5;
     for (let c = 1; c <= count; c++) {
-        const r = c * step * scale;
         const fade = c / count;
-        const alpha = baseAlpha * (0.3 + fade * 0.7);
-        ctx.strokeStyle = `rgba(0,0,0,${alpha.toFixed(3)})`;
+        ctx.strokeStyle = `rgba(0,0,0,${(alpha * (0.3 + fade * 0.7)).toFixed(3)})`;
         ctx.beginPath();
-        ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2);
-        ctx.stroke();
-    }
-
-    // Inner dot for activated nodes
-    if (activation > 0.3) {
-        ctx.fillStyle = `rgba(0,0,0,${(activation * 0.4).toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 2 + activation * 2, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-// ── Draw Edge with Pulse ────────────────────────────────────────────
-
-function drawEdge(fromNode, toNode, weight, scrollT) {
-    const from = getNodeScreen(fromNode);
-    const to = getNodeScreen(toNode);
-
-    // Base edge
-    const baseAlpha = 0.08 + weight * 0.12;
-    ctx.strokeStyle = `rgba(0,0,0,${baseAlpha.toFixed(3)})`;
-    ctx.lineWidth = 0.3 + weight * 1.2;
-    ctx.beginPath();
-    ctx.moveTo(from.x, from.y);
-    ctx.lineTo(to.x, to.y);
-    ctx.stroke();
-
-    // Pulse traveling along edge (scroll-driven)
-    // Pulse position based on scroll + edge depth
-    const edgeDepth = (fromNode.y + toNode.y) / 2;
-    const pulsePhase = (scrollT * 3 - edgeDepth) % 1;
-    if (pulsePhase > 0 && pulsePhase < 0.3) {
-        const t = pulsePhase / 0.3;
-        const px = from.x + (to.x - from.x) * t;
-        const py = from.y + (to.y - from.y) * t;
-        const pulseAlpha = Math.sin(t * Math.PI) * 0.5 * weight;
-
-        // Pulse glow
-        ctx.fillStyle = `rgba(0,0,0,${pulseAlpha.toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(px, py, 2 + weight * 3, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Bright line segment near pulse
-        const t0 = Math.max(0, t - 0.15);
-        const t1 = Math.min(1, t + 0.05);
-        ctx.strokeStyle = `rgba(0,0,0,${(pulseAlpha * 0.8).toFixed(3)})`;
-        ctx.lineWidth = 0.5 + weight * 2;
-        ctx.beginPath();
-        ctx.moveTo(from.x + (to.x - from.x) * t0, from.y + (to.y - from.y) * t0);
-        ctx.lineTo(from.x + (to.x - from.x) * t1, from.y + (to.y - from.y) * t1);
+        ctx.arc(x, y, c * step, 0, Math.PI * 2);
         ctx.stroke();
     }
 }
 
-// ── Sacred Geometry Overlays ────────────────────────────────────────
+// ── Shared: draw version marker ─────────────────────────────────────
 
-function drawSacredGeometry(scrollT) {
-    const cx = getNodeScreen(NODES[6]).x; // Tiferet = center
-    const cy = getNodeScreen(NODES[6]).y;
-
-    // Outer circle encompassing the tree
-    const outerR = isMobile ? Math.min(W, H) * 0.42 : H * 0.44;
-    ctx.strokeStyle = `rgba(0,0,0,0.04)`;
-    ctx.lineWidth = 0.5;
-    ctx.beginPath();
-    ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Second outer circle
-    ctx.beginPath();
-    ctx.arc(cx, cy, outerR * 1.08, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Three pillars (vertical lines)
-    const pillars = [0.22, 0.5, 0.78];
-    const treeLeft = isMobile ? W * 0.1 : W * 0.48;
-    const treeRight = isMobile ? W * 0.9 : W * 0.95;
-    const treeW = treeRight - treeLeft;
-
-    ctx.strokeStyle = `rgba(0,0,0,0.025)`;
-    ctx.lineWidth = 0.5;
-    for (const px of pillars) {
-        const sx = treeLeft + px * treeW;
-        ctx.beginPath();
-        ctx.moveTo(sx, H * 0.02);
-        ctx.lineTo(sx, H * 0.98);
-        ctx.stroke();
-    }
-
-    // Rotating hexagram (Star of David) — slow rotation from scroll
-    const hexAngle = scrollT * Math.PI * 0.5;
-    const hexR = outerR * 0.55;
-    ctx.strokeStyle = `rgba(0,0,0,0.035)`;
-    ctx.lineWidth = 0.5;
-
-    // Upward triangle
-    ctx.beginPath();
-    for (let i = 0; i <= 3; i++) {
-        const a = hexAngle + (i * Math.PI * 2) / 3 - Math.PI / 2;
-        const px = cx + Math.cos(a) * hexR;
-        const py = cy + Math.sin(a) * hexR;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
-
-    // Downward triangle
-    ctx.beginPath();
-    for (let i = 0; i <= 3; i++) {
-        const a = hexAngle + (i * Math.PI * 2) / 3 + Math.PI / 2;
-        const px = cx + Math.cos(a) * hexR;
-        const py = cy + Math.sin(a) * hexR;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
-
-    // Small circles at each node position (Rosicrucian rose points)
-    for (const node of NODES) {
-        const pos = getNodeScreen(node);
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, 3, 0, Math.PI * 2);
-        ctx.stroke();
-    }
+function drawMarker() {
+    ctx.save();
+    ctx.font = '700 24px JetBrains Mono, monospace';
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.textAlign = 'right';
+    ctx.fillText(`v${VERSION}`, W - 20, 36);
+    ctx.restore();
 }
 
-// ── Compute Node Activations ────────────────────────────────────────
-// Activation flows top-to-bottom driven by scroll.
+// ── Shared: get scroll T ────────────────────────────────────────────
 
-function getActivation(node, scrollT) {
-    // Wave sweeps from top (y=0.04) at scrollT=0 to bottom (y=0.88) at scrollT=1
-    const topY = 0.04;
-    const bottomY = 0.88;
-    const wave = topY + scrollT * (bottomY - topY);
-    const dist = Math.abs(node.y - wave);
-    return Math.max(0, 1 - dist * 2.5);
+function getScrollT() {
+    const maxScroll = document.documentElement.scrollHeight - H;
+    return maxScroll > 0 ? window.scrollY / maxScroll : 0;
 }
+
+// ── Shared: tree area bounds ────────────────────────────────────────
+
+function treeBounds() {
+    const left = isMobile ? W * 0.1 : W * 0.48;
+    const right = isMobile ? W * 0.9 : W * 0.95;
+    const top = H * 0.05;
+    const bottom = H * 0.95;
+    return { left, right, top, bottom, w: right - left, h: bottom - top,
+             cx: (left + right) / 2, cy: (top + bottom) / 2 };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// VERSION 1: Fractal Branching Network
+// ════════════════════════════════════════════════════════════════════
+
+const v1 = (() => {
+    let nodes = [];
+    let edges = [];
+
+    function generate() {
+        nodes = [];
+        edges = [];
+        const b = treeBounds();
+        const maxDepth = isMobile ? 5 : 6;
+
+        function branch(x, y, depth, parentIdx) {
+            const idx = nodes.length;
+            const r = 12 + (maxDepth - depth) * 5;
+            nodes.push({ x, y, r, depth });
+            if (parentIdx >= 0) edges.push([parentIdx, idx]);
+
+            if (depth >= maxDepth) return;
+
+            const children = depth < 2 ? 3 : 2;
+            const spread = b.w * (0.18 / (depth + 1));
+            const stepY = b.h / (maxDepth + 1);
+
+            for (let c = 0; c < children; c++) {
+                const angle = ((c / (children - 1 || 1)) - 0.5) * 2;
+                const nx = x + angle * spread + noise(idx * 0.5 + c, depth) * spread * 0.3;
+                const ny = y + stepY + noise(idx * 0.3, c * 2) * stepY * 0.2;
+                branch(nx, ny, depth + 1, idx);
+            }
+        }
+
+        branch(b.cx, b.top + 30, 0, -1);
+    }
+
+    function draw(scrollT) {
+        const wave = scrollT;
+
+        // Edges
+        for (const [fi, ti] of edges) {
+            const f = nodes[fi], t = nodes[ti];
+            const edgeY = (f.y + t.y) / 2;
+            const normY = (edgeY - treeBounds().top) / treeBounds().h;
+            const active = Math.max(0, 1 - Math.abs(normY - wave) * 2.5);
+            ctx.strokeStyle = `rgba(0,0,0,${(0.06 + active * 0.25).toFixed(3)})`;
+            ctx.lineWidth = 0.3 + active * 1.5;
+            ctx.beginPath();
+            ctx.moveTo(f.x, f.y);
+            // Slight curve
+            const mx = (f.x + t.x) / 2 + noise2(fi * 0.1, ti * 0.1) * 15;
+            const my = (f.y + t.y) / 2;
+            ctx.quadraticCurveTo(mx, my, t.x, t.y);
+            ctx.stroke();
+
+            // Pulse
+            if (active > 0.2) {
+                const pt = (active - 0.2) / 0.8;
+                const px = f.x + (t.x - f.x) * pt;
+                const py = f.y + (t.y - f.y) * pt;
+                ctx.fillStyle = `rgba(0,0,0,${(active * 0.3).toFixed(3)})`;
+                ctx.beginPath();
+                ctx.arc(px, py, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Nodes
+        for (const n of nodes) {
+            const normY = (n.y - treeBounds().top) / treeBounds().h;
+            const active = Math.max(0, 1 - Math.abs(normY - wave) * 2.5);
+            drawConcentricCircle(n.x, n.y, n.r * (1 + active * 0.3), 0.15 + active * 0.5);
+        }
+    }
+
+    return { init: generate, draw };
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// VERSION 2: Emergent Graph (noise-placed nodes, proximity edges)
+// ════════════════════════════════════════════════════════════════════
+
+const v2 = (() => {
+    let nodes = [];
+    let edges = [];
+
+    function generate() {
+        nodes = [];
+        edges = [];
+        const b = treeBounds();
+        const count = isMobile ? 25 : 40;
+
+        for (let i = 0; i < count; i++) {
+            const x = b.left + noise(i * 0.7, 0) * b.w * 0.4 + b.w * 0.3;
+            const y = b.top + (i / count) * b.h + noise(i * 0.5, 1) * 40;
+            const r = 10 + Math.abs(noise(i * 0.4, 2)) * 25;
+            nodes.push({ x, y, r });
+        }
+
+        // Connect nearby nodes
+        const maxDist = isMobile ? 130 : 160;
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                const dx = nodes[i].x - nodes[j].x;
+                const dy = nodes[i].y - nodes[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < maxDist) {
+                    edges.push([i, j, 1 - d / maxDist]);
+                }
+            }
+        }
+    }
+
+    function draw(scrollT) {
+        const b = treeBounds();
+
+        // Edges
+        for (const [fi, ti, w] of edges) {
+            const f = nodes[fi], t = nodes[ti];
+            const normY = ((f.y + t.y) / 2 - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2.2);
+            ctx.strokeStyle = `rgba(0,0,0,${(0.03 + w * 0.08 + active * 0.2).toFixed(3)})`;
+            ctx.lineWidth = 0.2 + w * 0.8 + active * 1;
+            ctx.beginPath();
+            ctx.moveTo(f.x, f.y);
+            ctx.lineTo(t.x, t.y);
+            ctx.stroke();
+        }
+
+        // Nodes
+        for (const n of nodes) {
+            const normY = (n.y - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2.2);
+            drawConcentricCircle(n.x, n.y, n.r * (1 + active * 0.25), 0.12 + active * 0.5);
+        }
+    }
+
+    return { init: generate, draw };
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// VERSION 3: Recursive Sacred Geometry (Sierpinski + concentric nodes)
+// ════════════════════════════════════════════════════════════════════
+
+const v3 = (() => {
+    let nodes = [];
+    let edges = [];
+
+    function generate() {
+        nodes = [];
+        edges = [];
+        const b = treeBounds();
+        const maxDepth = isMobile ? 4 : 5;
+
+        // Start with a large triangle
+        const margin = 20;
+        const top = { x: b.cx, y: b.top + margin };
+        const bl = { x: b.left + margin, y: b.bottom - margin };
+        const br = { x: b.right - margin, y: b.bottom - margin };
+
+        function subdivide(a, c2, c3, depth) {
+            const idx = nodes.length;
+            // Node at each vertex
+            const addNode = (p) => {
+                const existing = nodes.findIndex(n =>
+                    Math.abs(n.x - p.x) < 2 && Math.abs(n.y - p.y) < 2);
+                if (existing >= 0) return existing;
+                const ni = nodes.length;
+                const r = 8 + (maxDepth - depth) * 6;
+                nodes.push({ x: p.x, y: p.y, r, depth });
+                return ni;
+            };
+
+            const i0 = addNode(a);
+            const i1 = addNode(c2);
+            const i2 = addNode(c3);
+            edges.push([i0, i1], [i1, i2], [i2, i0]);
+
+            if (depth >= maxDepth) return;
+
+            const m01 = { x: (a.x + c2.x) / 2, y: (a.y + c2.y) / 2 };
+            const m12 = { x: (c2.x + c3.x) / 2, y: (c2.y + c3.y) / 2 };
+            const m02 = { x: (a.x + c3.x) / 2, y: (a.y + c3.y) / 2 };
+
+            subdivide(a, m01, m02, depth + 1);
+            subdivide(m01, c2, m12, depth + 1);
+            subdivide(m02, m12, c3, depth + 1);
+        }
+
+        subdivide(top, bl, br, 0);
+    }
+
+    function draw(scrollT) {
+        const b = treeBounds();
+
+        // Edges
+        for (const [fi, ti] of edges) {
+            const f = nodes[fi], t = nodes[ti];
+            const normY = ((f.y + t.y) / 2 - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2);
+            ctx.strokeStyle = `rgba(0,0,0,${(0.04 + active * 0.18).toFixed(3)})`;
+            ctx.lineWidth = 0.3 + active * 1;
+            ctx.beginPath();
+            ctx.moveTo(f.x, f.y);
+            ctx.lineTo(t.x, t.y);
+            ctx.stroke();
+        }
+
+        // Nodes
+        for (const n of nodes) {
+            const normY = (n.y - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2);
+            drawConcentricCircle(n.x, n.y, n.r * (1 + active * 0.3), 0.1 + active * 0.5);
+        }
+    }
+
+    return { init: generate, draw };
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// VERSION 4: Drifting Neural Net Layers
+// ════════════════════════════════════════════════════════════════════
+
+const v4 = (() => {
+    let layers = [];
+    let edges = [];
+
+    function generate() {
+        layers = [];
+        edges = [];
+        const b = treeBounds();
+        const layerCount = isMobile ? 5 : 7;
+        const nodesPerLayer = isMobile ? [3,5,6,5,3] : [3,5,7,8,7,5,3];
+
+        for (let l = 0; l < layerCount; l++) {
+            const count = nodesPerLayer[l];
+            const y = b.top + (l / (layerCount - 1)) * b.h;
+            const layer = [];
+            for (let n = 0; n < count; n++) {
+                const x = b.cx + ((n / (count - 1 || 1)) - 0.5) * b.w * 0.7;
+                // Drift offset from noise
+                const dx = noise(l * 3 + n * 0.5, 0) * 20;
+                const dy = noise(l * 3 + n * 0.5, 1) * 15;
+                const r = 10 + Math.abs(noise(l + n * 0.3, 2)) * 18;
+                layer.push({ x: x + dx, y: y + dy, r, layer: l });
+            }
+            layers.push(layer);
+        }
+
+        // Connect adjacent layers
+        for (let l = 0; l < layers.length - 1; l++) {
+            for (const from of layers[l]) {
+                for (const to of layers[l + 1]) {
+                    const dx = from.x - to.x;
+                    const dy = from.y - to.y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    const maxD = b.w * 0.5;
+                    if (d < maxD) {
+                        const w = (1 - d / maxD) * Math.abs(noise(from.x * 0.01, to.y * 0.01));
+                        if (w > 0.1) edges.push([from, to, w]);
+                    }
+                }
+            }
+        }
+    }
+
+    function draw(scrollT) {
+        const b = treeBounds();
+
+        // Edges — flex with time
+        for (const [f, t, w] of edges) {
+            const normY = ((f.y + t.y) / 2 - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2);
+            const flex = Math.sin(time * 0.5 + f.x * 0.01) * 8;
+            ctx.strokeStyle = `rgba(0,0,0,${(0.02 + w * 0.06 + active * 0.15).toFixed(3)})`;
+            ctx.lineWidth = 0.2 + w * 0.6 + active * 1.2;
+            ctx.beginPath();
+            ctx.moveTo(f.x, f.y);
+            const mx = (f.x + t.x) / 2 + flex;
+            const my = (f.y + t.y) / 2;
+            ctx.quadraticCurveTo(mx, my, t.x, t.y);
+            ctx.stroke();
+        }
+
+        // Nodes
+        for (const layer of layers) {
+            for (const n of layer) {
+                const normY = (n.y - b.top) / b.h;
+                const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2);
+                // Subtle drift
+                const dx = Math.sin(time * 0.3 + n.x * 0.02) * 3;
+                const dy = Math.cos(time * 0.25 + n.y * 0.02) * 2;
+                drawConcentricCircle(n.x + dx, n.y + dy, n.r * (1 + active * 0.3), 0.12 + active * 0.5);
+            }
+        }
+    }
+
+    return { init: generate, draw };
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// VERSION 5: Voronoi Cells with Node Centers
+// ════════════════════════════════════════════════════════════════════
+
+const v5 = (() => {
+    let sites = [];
+    let voronoiEdges = [];
+    let neighborPairs = [];
+
+    function generate() {
+        sites = [];
+        voronoiEdges = [];
+        neighborPairs = [];
+        const b = treeBounds();
+        const count = isMobile ? 20 : 35;
+
+        for (let i = 0; i < count; i++) {
+            const x = b.left + (noise(i * 0.7, 0) + 1) * 0.5 * b.w;
+            const y = b.top + (i / count) * b.h + noise(i * 0.5, 1) * 30;
+            const r = 8 + Math.abs(noise(i * 0.4, 2)) * 20;
+            sites.push({ x, y, r });
+        }
+
+        // Approximate Voronoi by sampling grid and finding cell boundaries
+        const step = isMobile ? 8 : 5;
+        const checked = new Set();
+        for (let gy = b.top; gy < b.bottom; gy += step) {
+            for (let gx = b.left; gx < b.right; gx += step) {
+                // Find two closest sites
+                let d1 = Infinity, d2 = Infinity, i1 = -1, i2 = -1;
+                for (let i = 0; i < sites.length; i++) {
+                    const dx = gx - sites[i].x, dy = gy - sites[i].y;
+                    const d = dx * dx + dy * dy;
+                    if (d < d1) { d2 = d1; i2 = i1; d1 = d; i1 = i; }
+                    else if (d < d2) { d2 = d; i2 = i; }
+                }
+                // If close to boundary, record as edge point
+                const diff = Math.abs(Math.sqrt(d1) - Math.sqrt(d2));
+                if (diff < step * 1.5) {
+                    voronoiEdges.push({ x: gx, y: gy });
+                    const key = Math.min(i1, i2) + ',' + Math.max(i1, i2);
+                    if (!checked.has(key)) {
+                        checked.add(key);
+                        neighborPairs.push([i1, i2]);
+                    }
+                }
+            }
+        }
+    }
+
+    function draw(scrollT) {
+        const b = treeBounds();
+
+        // Voronoi cell boundaries
+        ctx.fillStyle = 'rgba(0,0,0,0.06)';
+        for (const pt of voronoiEdges) {
+            const normY = (pt.y - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2.5);
+            ctx.globalAlpha = 0.04 + active * 0.1;
+            ctx.fillRect(pt.x, pt.y, isMobile ? 2 : 1.5, isMobile ? 2 : 1.5);
+        }
+        ctx.globalAlpha = 1;
+
+        // Neighbor connections
+        for (const [i, j] of neighborPairs) {
+            const f = sites[i], t = sites[j];
+            const normY = ((f.y + t.y) / 2 - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2.5);
+            ctx.strokeStyle = `rgba(0,0,0,${(0.03 + active * 0.12).toFixed(3)})`;
+            ctx.lineWidth = 0.3 + active * 0.8;
+            ctx.beginPath();
+            ctx.moveTo(f.x, f.y);
+            ctx.lineTo(t.x, t.y);
+            ctx.stroke();
+        }
+
+        // Nodes
+        for (const s of sites) {
+            const normY = (s.y - b.top) / b.h;
+            const active = Math.max(0, 1 - Math.abs(normY - scrollT) * 2.5);
+            drawConcentricCircle(s.x, s.y, s.r * (1 + active * 0.3), 0.1 + active * 0.5);
+        }
+    }
+
+    return { init: generate, draw };
+})();
+
+// ════════════════════════════════════════════════════════════════════
+
+const versions = { 1: v1, 2: v2, 3: v3, 4: v4, 5: v5 };
 
 // ── Mouse Proximity Text Scaling ────────────────────────────────────
 
@@ -246,17 +518,12 @@ const maxScale = 1.12;
 function updateTextProximity() {
     if (isMobile) return;
     const els = document.querySelectorAll('.proximity-text');
-    const mx = mouse.x;
-    const my = mouse.y;
-
+    const mx = mouse.x, my = mouse.y;
     for (const el of els) {
         const rect = el.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
         const cy = rect.top + rect.height / 2;
-        const dx = mx - cx;
-        const dy = my - cy;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
+        const dist = Math.sqrt((mx - cx) ** 2 + (my - cy) ** 2);
         if (dist < proximityRadius) {
             const t = 1 - dist / proximityRadius;
             el.style.transform = `scale(${1 + (maxScale - 1) * t * t})`;
@@ -267,50 +534,29 @@ function updateTextProximity() {
 }
 
 document.addEventListener('mousemove', (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+    mouse.x = e.clientX; mouse.y = e.clientY;
     updateTextProximity();
 });
-
 document.addEventListener('mouseleave', () => {
-    mouse.x = -9999;
-    mouse.y = -9999;
-    document.querySelectorAll('.proximity-text').forEach(el => {
-        el.style.transform = '';
-    });
+    mouse.x = -9999; mouse.y = -9999;
+    document.querySelectorAll('.proximity-text').forEach(el => el.style.transform = '');
 });
 
 // ── Animation Loop ──────────────────────────────────────────────────
 
 function frame(ts) {
     time = ts * 0.001;
+    const scrollT = getScrollT();
 
-    const scrollY = window.scrollY;
-    const maxScroll = document.documentElement.scrollHeight - H;
-    const scrollT = maxScroll > 0 ? scrollY / maxScroll : 0;
-
-    // Clear
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
-    // Sacred geometry background layer
-    drawSacredGeometry(scrollT);
+    const v = versions[VERSION];
+    if (v) v.draw(scrollT);
 
-    // Draw edges with pulses
-    for (const [fromId, toId, weight] of EDGES) {
-        drawEdge(NODES[fromId], NODES[toId], weight, scrollT);
-    }
-
-    // Draw nodes with activation
-    for (const node of NODES) {
-        const activation = getActivation(node, scrollT);
-        drawNode(node, activation);
-    }
-
+    drawMarker();
     requestAnimationFrame(frame);
 }
-
-// ── Init ────────────────────────────────────────────────────────────
 
 function init() {
     resize();
