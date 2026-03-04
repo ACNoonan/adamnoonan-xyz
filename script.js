@@ -20,7 +20,7 @@ function resize() {
 let resizeTimer;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => { resize(); path = buildPath(); }, 200);
+    resizeTimer = setTimeout(() => { resize(); segments = buildPath(); }, 200);
 });
 
 function getScrollT() {
@@ -29,90 +29,71 @@ function getScrollT() {
 }
 
 // ── Path Builder ────────────────────────────────────────────────────
-// Builds a Seed of Life → Hexagram → Outer Ring
-// One continuous line. All connecting segments run through shared
-// intersection points so they're invisible in the final image.
-// Final point = first point (closed form).
+// Returns an array of segments. Each segment is a self-contained array
+// of {x,y} points forming one clean element of the Seed of Life.
+// No connecting lines between elements — when fully drawn the result
+// is perfectly symmetrical.
 
 function buildPath() {
     const cx = isMobile ? W * 0.5 : W * 0.68;
     const cy = H * 0.5;
     const R = Math.min(W, H) * (isMobile ? 0.25 : 0.2);
-    const pts = [];
+    const segs = [];
 
-    function arc(x, y, r, from, to, n) {
+    function arcPts(x, y, r, from, to, n) {
+        const pts = [];
         for (let i = 0; i <= n; i++) {
             const a = from + (to - from) * (i / n);
             pts.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r });
         }
+        return pts;
     }
 
-    function line(x1, y1, x2, y2, n) {
-        for (let i = 0; i <= n; i++) {
-            const t = i / n;
-            pts.push({ x: x1 + (x2 - x1) * t, y: y1 + (y2 - y1) * t });
+    function closedTriPts(verts, n) {
+        const pts = [];
+        for (let i = 0; i < 3; i++) {
+            const a = verts[i], b = verts[(i + 1) % 3];
+            for (let j = (i === 0 ? 0 : 1); j <= n; j++) {
+                const t = j / n;
+                pts.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+            }
         }
+        return pts;
     }
 
-    // ── 1. Center circle (start at top, clockwise) ──
-    arc(cx, cy, R, -Math.PI / 2, Math.PI * 3 / 2, 180);
+    // 1. Center circle (start at top, clockwise)
+    segs.push(arcPts(cx, cy, R, -Math.PI / 2, Math.PI * 3 / 2, 180));
 
-    // ── 2. Six petals (Seed of Life) ──
-    // Each petal center is on the center circle.
-    // Each petal circle passes through main center (cx, cy).
-    // We enter each petal at the center, trace the full circle, exit at center.
+    // 2–7. Six petal circles (each starts from the center point, full sweep)
     for (let i = 0; i < 6; i++) {
-        const pa = -Math.PI / 2 + i * Math.PI / 3;
-        const pcx = cx + Math.cos(pa) * R;
-        const pcy = cy + Math.sin(pa) * R;
-
-        // Connect to center (shared point of all petals)
-        const last = pts[pts.length - 1];
-        line(last.x, last.y, cx, cy, 8);
-
-        // Entry angle on petal: direction from petal center toward main center
-        const entry = Math.atan2(cy - pcy, cx - pcx);
-        arc(pcx, pcy, R, entry, entry + Math.PI * 2, 140);
+        const a = -Math.PI / 2 + i * Math.PI / 3;
+        const pcx = cx + Math.cos(a) * R;
+        const pcy = cy + Math.sin(a) * R;
+        const startA = a + Math.PI; // direction toward main center
+        segs.push(arcPts(pcx, pcy, R, startA, startA + Math.PI * 2, 180));
     }
 
-    // ── 3. Hexagram (two interlocking triangles) ──
-    // Vertices sit on the center circle at the petal centers.
-    const last3 = pts[pts.length - 1];
-    // Triangle 1: vertices at -90°, 30°, 150°
-    const t1 = [0, 2, 4].map(i => {
-        const a = -Math.PI / 2 + i * Math.PI / 3;
+    // 8. Triangle 1 — vertices at petal positions 0, 2, 4
+    const t1 = [0, 2, 4].map(idx => {
+        const a = -Math.PI / 2 + idx * Math.PI / 3;
         return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R };
     });
-    line(last3.x, last3.y, t1[0].x, t1[0].y, 6);
-    line(t1[0].x, t1[0].y, t1[1].x, t1[1].y, 40);
-    line(t1[1].x, t1[1].y, t1[2].x, t1[2].y, 40);
-    line(t1[2].x, t1[2].y, t1[0].x, t1[0].y, 40);
+    segs.push(closedTriPts(t1, 40));
 
-    // Triangle 2: vertices at -30°, 90°, 210°
-    const t2 = [1, 3, 5].map(i => {
-        const a = -Math.PI / 2 + i * Math.PI / 3;
+    // 9. Triangle 2 — vertices at petal positions 1, 3, 5
+    const t2 = [1, 3, 5].map(idx => {
+        const a = -Math.PI / 2 + idx * Math.PI / 3;
         return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R };
     });
-    line(t1[0].x, t1[0].y, t2[0].x, t2[0].y, 6);
-    line(t2[0].x, t2[0].y, t2[1].x, t2[1].y, 40);
-    line(t2[1].x, t2[1].y, t2[2].x, t2[2].y, 40);
-    line(t2[2].x, t2[2].y, t2[0].x, t2[0].y, 40);
+    segs.push(closedTriPts(t2, 40));
 
-    // ── 4. Outer circle (frames the whole form) ──
-    const outerR = R * 1.85;
-    const lastOuter = pts[pts.length - 1];
-    const outerTop = { x: cx, y: cy - outerR };
-    line(lastOuter.x, lastOuter.y, outerTop.x, outerTop.y, 12);
-    arc(cx, cy, outerR, -Math.PI / 2, Math.PI * 3 / 2, 220);
+    // 10. Outer circle
+    segs.push(arcPts(cx, cy, R * 1.85, -Math.PI / 2, Math.PI * 3 / 2, 220));
 
-    // ── 5. Close: return to first point ──
-    const fin = pts[pts.length - 1];
-    line(fin.x, fin.y, pts[0].x, pts[0].y, 15);
-
-    return pts;
+    return segs;
 }
 
-let path = [];
+let segments = [];
 
 // ── Mouse Proximity Text Scaling ────────────────────────────────────
 
@@ -146,49 +127,72 @@ document.addEventListener('mouseleave', () => {
 function frame() {
     const scrollT = getScrollT();
 
-    // Drawing completes at 75% scroll; remaining 25% shows the finished shape
+    // Drawing completes at 75% scroll; last 25% shows finished shape
     const drawT = Math.min(scrollT / 0.75, 1);
-    const drawCount = Math.floor(drawT * path.length);
+
+    let totalPts = 0;
+    for (const seg of segments) totalPts += seg.length;
+
+    const drawCount = Math.floor(drawT * totalPts);
 
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, W, H);
 
     if (drawCount < 2) { requestAnimationFrame(frame); return; }
 
-    // How close to complete (0→1 over last 10% of drawing)
+    // Completeness ramps 0→1 over the last 10% of drawing
     const completeness = Math.min(1, Math.max(0, (drawT - 0.9) / 0.1));
 
-    // Main line — opacity increases as shape completes for uniform look
+    // Main strokes — each segment drawn independently, no connecting lines
     const mainAlpha = 0.3 + completeness * 0.1;
     ctx.strokeStyle = `rgba(0,0,0,${mainAlpha})`;
     ctx.lineWidth = 0.8;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(path[0].x, path[0].y);
-    for (let i = 1; i < drawCount; i++) {
-        ctx.lineTo(path[i].x, path[i].y);
-    }
-    ctx.stroke();
 
-    // Fresh ink: fades out as drawing completes
-    if (completeness < 1) {
-        const freshFade = 1 - completeness;
-        const freshStart = Math.max(1, drawCount - Math.floor(path.length * 0.03));
-        ctx.strokeStyle = `rgba(0,0,0,${0.55 * freshFade})`;
-        ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(path[freshStart].x, path[freshStart].y);
-        for (let i = freshStart + 1; i < drawCount; i++) {
-            ctx.lineTo(path[i].x, path[i].y);
+    let consumed = 0;
+    let lastPt = null;
+
+    for (const seg of segments) {
+        if (consumed >= drawCount) break;
+        const n = Math.min(seg.length, drawCount - consumed);
+        if (n > 1) {
+            ctx.beginPath();
+            ctx.moveTo(seg[0].x, seg[0].y);
+            for (let i = 1; i < n; i++) ctx.lineTo(seg[i].x, seg[i].y);
+            ctx.stroke();
+            lastPt = seg[n - 1];
         }
-        ctx.stroke();
+        consumed += seg.length;
+    }
 
-        // Drawing head dot — also fades out
-        const head = path[drawCount - 1];
-        ctx.fillStyle = `rgba(0,0,0,${0.6 * freshFade})`;
+    // Fresh ink + head dot — fade out as drawing nears completion
+    if (completeness < 1 && lastPt) {
+        const fade = 1 - completeness;
+        const freshLen = Math.floor(totalPts * 0.03);
+        const freshFrom = Math.max(0, drawCount - freshLen);
+
+        ctx.strokeStyle = `rgba(0,0,0,${0.55 * fade})`;
+        ctx.lineWidth = 1.2;
+
+        let idx = 0;
+        for (const seg of segments) {
+            const segEnd = idx + seg.length;
+            if (segEnd <= freshFrom || idx >= drawCount) { idx = segEnd; continue; }
+            const a = Math.max(0, freshFrom - idx);
+            const b = Math.min(seg.length, drawCount - idx);
+            if (b - a > 1) {
+                ctx.beginPath();
+                ctx.moveTo(seg[a].x, seg[a].y);
+                for (let i = a + 1; i < b; i++) ctx.lineTo(seg[i].x, seg[i].y);
+                ctx.stroke();
+            }
+            idx = segEnd;
+        }
+
+        ctx.fillStyle = `rgba(0,0,0,${0.6 * fade})`;
         ctx.beginPath();
-        ctx.arc(head.x, head.y, 2, 0, Math.PI * 2);
+        ctx.arc(lastPt.x, lastPt.y, 2, 0, Math.PI * 2);
         ctx.fill();
     }
 
@@ -199,7 +203,7 @@ function frame() {
 
 function init() {
     resize();
-    path = buildPath();
+    segments = buildPath();
     requestAnimationFrame(frame);
 }
 
