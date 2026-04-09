@@ -178,6 +178,36 @@ h1, h2 {
     margin-bottom: 0.15em !important;
 }
 
+/* --- Projects --- */
+
+.project-list {
+    margin-top: 0.8em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+}
+
+.project-item {
+    padding-bottom: 0.8em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.project-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.project-item .section__link {
+    margin-top: 0;
+    font-size: 0.95rem;
+}
+
+.project-item p {
+    margin-top: 0.3em;
+    margin-bottom: 0;
+    color: var(--text-dim);
+}
+
 /* --- Social Links --- */
 
 .social-links {
