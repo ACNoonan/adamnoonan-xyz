@@ -88,7 +88,8 @@ function buildPath() {
     segs.push(closedTriPts(t2, 40));
 
     // 10. Outer circle
-    segs.push(arcPts(cx, cy, R * 1.85, -Math.PI / 2, Math.PI * 3 / 2, 220));
+    // Keep this slightly larger than the petal extents so it fully wraps the form.
+    segs.push(arcPts(cx, cy, R * 2.05, -Math.PI / 2, Math.PI * 3 / 2, 220));
 
     return segs;
 }
