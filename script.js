@@ -197,17 +197,6 @@ function frame() {
         ctx.fill();
     }
 
-    if (isMobile) {
-        ctx.fillStyle = '#ffffff';
-        const pad = 4;
-        const els = document.querySelectorAll('.proximity-text');
-        for (const el of els) {
-            const r = el.getBoundingClientRect();
-            if (r.bottom < 0 || r.top > H || r.width === 0) continue;
-            ctx.fillRect(r.left - pad, r.top - pad, r.width + pad * 2, r.height + pad * 2);
-        }
-    }
-
     requestAnimationFrame(frame);
 }
 
