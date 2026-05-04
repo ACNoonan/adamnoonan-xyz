@@ -103,11 +103,19 @@
             </div>
         </section>
 
-        <section class="section" data-section="sdks">
+        <section class="section" data-section="open-source">
             <div class="section__content">
-                <h2 class="proximity-text section__heading">SDKs</h2>
-                <p class="proximity-text">Open-source software enthusiast &mdash; libraries i&rsquo;ve published to fill gaps i&rsquo;ve hit in my own work.</p>
+                <h2 class="proximity-text section__heading">Open Source</h2>
+                <p class="proximity-text">Codebases i maintain &amp; put out in the open &mdash; some are libraries i needed and didn&rsquo;t exist, others are forks i carry forward with enhanced/additional features.</p>
                 <div class="project-list">
+                    <div class="project-item proximity-text">
+                        <a href="https://github.com/IngotDB/ingot-db" target="_blank" rel="noopener" class="section__link">ingot-db</a>
+                        <p>Embeddable, transactional key-value storage engine in Rust &mdash; maintained fork of <code>fjall-rs/fjall</code> with deadlock fixes, custom sequence generators, and zstd compression.</p>
+                    </div>
+                    <div class="project-item proximity-text">
+                        <a href="https://github.com/IngotDB/lsm-tree" target="_blank" rel="noopener" class="section__link">lsm-tree</a>
+                        <p>Log-structured merge-tree engine in Rust &mdash; fork of <code>fjall-rs/lsm-tree</code> with zstd dictionary compression, batch multi-get, zero-copy reads, and intra-L0 compaction.</p>
+                    </div>
                     <div class="project-item proximity-text">
                         <a href="https://github.com/ACNoonan/solana-clmm-raydium" target="_blank" rel="noopener" class="section__link">solana-clmm-raydium</a>
                         <p>Pure-Rust, no-RPC swap math for Raydium&rsquo;s concentrated-liquidity AMM &mdash; the missing Solana analogue of <code>uniswap_v3_math</code>.</p>
