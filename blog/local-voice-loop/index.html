@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A fully local voice loop for my Mac — Adam Noonan</title>
+    <meta name="description" content="Ditching a dictation subscription for Hex + Yapper — voice in, voice out, zero subscriptions, nothing leaves the machine.">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/blog.css">
+</head>
+<body>
+    <main class="page">
+        <div class="page__content">
+            <nav class="crumbs">
+                <a href="/">&larr; adamnoonan.xyz</a>
+                <a href="/blog/">all posts</a>
+            </nav>
+
+            <article class="post">
+                <h1 class="post-title">A fully local voice loop for my Mac</h1>
+                <p class="post-meta">July 5, 2026 <span class="draft-badge">draft</span></p>
+
+                <p>I paid for dictation software for exactly three days.</p>
+
+                <!-- TODO(adam): why you tried Wispr Flow in the first place — word of mouth? twitter? what it cost. -->
+                <p>On April 18th i installed Wispr Flow, the subscription dictation app everyone raves about. It&rsquo;s genuinely good. Three days later i installed Hex, a free, open-source, fully local alternative &mdash; and according to macOS&rsquo;s own last-used metadata, i never opened Wispr Flow again. Not once. That was two and a half months ago; Hex is still my daily driver.</p>
+
+                <h2>Why local</h2>
+                <!-- TODO(adam): your honest ranking of these three — which one actually tipped you? -->
+                <p>Three reasons, in whatever order you like:</p>
+                <ul>
+                    <li><strong>No subscription.</strong> Dictation is a commodity now. Whisper runs great on Apple Silicon.</li>
+                    <li><strong>No round-trip.</strong> Audio doesn&rsquo;t travel to a server and back before words hit the editor.</li>
+                    <li><strong>No leak.</strong> Dictation is intimate data &mdash; it&rsquo;s every half-formed thought you speak at your machine. It shouldn&rsquo;t leave the machine.</li>
+                </ul>
+
+                <h2>Voice in: Hex</h2>
+                <!-- TODO(adam): accuracy/latency impressions vs Wispr Flow; what you mainly dictate (Claude Code prompts? messages?). -->
+                <p><a href="https://github.com/kitlangton/Hex" target="_blank" rel="noopener">Hex</a> is voice-to-text on a hotkey: hold a key, talk, release, and the transcription lands wherever your cursor is. It runs Whisper locally on Apple Silicon, it&rsquo;s free, and it&rsquo;s open source. Most of what i dictate is prompts &mdash; talking to Claude Code is much faster than typing at it.</p>
+
+                <h2>The missing half: building Yapper</h2>
+                <!-- TODO(adam): war stories — the code-signing / Accessibility permission dance, latency tuning, anything painful. -->
+                <p>Voice in was solved. But i was still <em>reading</em> everything back. So in mid-May i built the mirror image: <a href="https://github.com/ACNoonan/yapper" target="_blank" rel="noopener">Yapper</a> &mdash; highlight text anywhere, press <code>&#8963;&#8679;S</code>, and hear it read aloud. Locally.</p>
+                <p>Under the hood it&rsquo;s two pieces:</p>
+                <ul>
+                    <li>A FastAPI server wrapping <a href="https://github.com/hexgrad/kokoro" target="_blank" rel="noopener">Kokoro-82M</a>, a small open TTS model that sounds shockingly good for its size. It preloads at startup, streams audio sentence-by-sentence so playback starts before the full clip is synthesized, and keeps an LRU cache for repeated text.</li>
+                    <li>A native Swift menubar app: global hotkey &rarr; grab the selected text via the Accessibility API (with a Cmd+C fallback) &rarr; POST to the server &rarr; play the WAV.</li>
+                </ul>
+                <p>Both halves run permanently via launchd, and there&rsquo;s a <a href="https://github.com/ACNoonan/homebrew-yapper" target="_blank" rel="noopener">Homebrew tap</a> if you want to try it: voice, speed, and hotkeys are all configurable from the menu bar.</p>
+
+                <h2>The loop</h2>
+                <!-- TODO(adam): do you actually use the full loop daily, or is Yapper more occasional? honest usage. -->
+                <p>Together they close the loop: dictate prompts in with Hex, listen to responses back with Yapper. A fully local voice interface to my AI tools &mdash; no accounts, no API keys, no audio leaving the machine.</p>
+
+                <h2>How it happened</h2>
+                <div class="timeline">
+                    <div class="timeline__entry">
+                        <span class="timeline__date">Apr 18</span>
+                        <span class="timeline__role">Install Wispr Flow</span>
+                    </div>
+                    <div class="timeline__entry">
+                        <span class="timeline__date">Apr 21</span>
+                        <span class="timeline__role">Install Hex. Never open Wispr Flow again</span>
+                    </div>
+                    <div class="timeline__entry">
+                        <span class="timeline__date">May 14</span>
+                        <span class="timeline__role">Start building Yapper (n&eacute;e Kokoro Speak)</span>
+                    </div>
+                    <div class="timeline__entry">
+                        <span class="timeline__date">May 27</span>
+                        <span class="timeline__role">Streaming TTS, menubar app, Homebrew tap, v0.1.0</span>
+                    </div>
+                    <div class="timeline__entry">
+                        <span class="timeline__date">Today</span>
+                        <span class="timeline__role">Voice in, voice out, $0/month</span>
+                    </div>
+                </div>
+
+                <h2>The math</h2>
+                <!-- TODO(adam): confirm what Wispr Flow actually charged you. -->
+                <p>Wispr Flow is ~$12&ndash;15/month. Hex is free. Yapper is free (i wrote it, but you get it free too). The whole stack runs on hardware i already own, and it&rsquo;ll keep working if either company disappears &mdash; because neither half needs a company.</p>
+                <p>Links: <a href="https://github.com/kitlangton/Hex" target="_blank" rel="noopener">Hex</a> &middot; <a href="https://github.com/ACNoonan/yapper" target="_blank" rel="noopener">Yapper</a> &middot; <a href="https://github.com/ACNoonan/homebrew-yapper" target="_blank" rel="noopener">brew tap</a></p>
+            </article>
+        </div>
+    </main>
+</body>
+</html>
