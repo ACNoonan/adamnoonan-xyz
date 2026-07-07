@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can Whisper transcribe “Rap God”? — Adam Noonan</title>
+    <meta name="description" content="I built a joke benchmark for ASR on fast rap and found out the models had memorized the answers — memorization measured in syllables per second.">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/blog.css">
+    <style>
+        /* post-scoped: tables, figures, charts */
+        .post table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin: 1.2em 0 1.4em;
+            font-variant-numeric: tabular-nums;
+        }
+        .post th, .post td {
+            text-align: left;
+            padding: 6px 10px 6px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        }
+        .post th {
+            color: var(--text-dim);
+            font-weight: 400;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .post .figure {
+            margin: 1.6em 0 2em;
+        }
+        .post .figure svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .post .figure figcaption {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.6em;
+            line-height: 1.5;
+        }
+        .post video {
+            width: 100%;
+            display: block;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+        .post blockquote {
+            border-left: 2px solid rgba(0, 0, 0, 0.15);
+            margin: 0 0 1em;
+            padding: 0.1em 0 0.1em 1em;
+            color: var(--text-dim);
+        }
+        .chart-text { font-family: inherit; font-size: 11px; fill: #777; }
+        .chart-label { font-family: inherit; font-size: 11.5px; font-weight: 500; }
+        .chart-grid { stroke: #e6e6e3; stroke-width: 1; }
+        .chart-axis { stroke: #c3c2b7; stroke-width: 1; }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <div class="page__content">
+            <nav class="crumbs">
+                <a href="/">&larr; adamnoonan.xyz</a>
+                <a href="/blog/">all posts</a>
+            </nav>
+
+            <article class="post">
+                <h1 class="post-title">Can Whisper transcribe “Rap God”?</h1>
+                <p class="post-meta">July 7, 2026 <span class="draft-badge">draft</span></p>
+
+                <p>Someone posted that their local dictation setup hits 527.9 tokens per second at 2.5% word error rate. This is a genuinely impressive number, and my first thought on reading it was: transcribing <em>what</em>? Nobody dictates at 527 tokens per second. The fastest speech a human being has ever produced under studio conditions is a rapper, and the word error rates on <em>that</em> are not in anyone’s marketing material.</p>
+
+                <p>So i built the benchmark. Seven segments of commercially released fast rap, tiered by syllable rate: “Lose Yourself” at a comfortable 5.5 syllables per second, up through Busta Rhymes and Tech N9ne, to the supersonic bit of “Rap God” (9.6) and the third verse of “Godzilla” (10.6, the Guinness record). Hand-verified lyrics, a WER normalizer that treats ad-libs as optional, and one headline stat i’ll call the <strong>live rate</strong>: the fastest verse a model transcribes at under 25% WER <em>while generating tokens faster than the rapper emits them</em>. I called the project MMLU — Marshall Mathers Lyrical Understanding — and expected to get an afternoon of entertainment out of it.</p>
+
+                <p>I got that. I also got a memorization scandal, a failed experiment i’m fonder of than most successful ones, and a video of a language model confidently captioning nonsense at ten syllables per second.</p>
+
+                <h2>Round one</h2>
+
+                <p>I ran eleven configurations across seven open-source model families — whisper in five sizes, Apple-GPU whisper via MLX, NVIDIA’s Parakeet, moonshine, wav2vec2 — on raw tracks and on demucs-separated vocal stems.</p>
+
+                <p>Nothing survived the top tier. The live rate maxed out at 9.0 syllables per second, a three-way tie between whisper large-v3 and two turbo variants. More interesting than the scores was <em>how</em> models die, because they don’t die the same way:</p>
+
+                <ul>
+                    <li>whisper-tiny returned a <strong>literally empty file</strong> for “Rap God.” Whisper has internal checks that suppress output when it decides audio isn’t speech; the fastest verified rapping alive apparently isn’t speech. Note this failure mode is silent — in a product, your captions just stop.</li>
+                    <li>wav2vec2, which has no language model to lean on, decayed into honest garbage: <code>THE OTON NOW IT OPO O OO NATATSOE</code>. You can <em>see</em> it failing, which i’ll defend as a feature.</li>
+                    <li>moonshine failed fluent: grammatical, confident, wrong (“Time’s up, over plow”). Undetectable without ground truth, which makes it the worst failure of the three, and it looks the best.</li>
+                </ul>
+
+                <p>Also worth knowing: whisper large-v3’s real-time factor went from 0.63 on mid-tempo verses to <strong>3.09 on “Rap God.”</strong> Hard audio makes it <em>slower</em> — more tokens per second of audio, plus a fallback mechanism that re-decodes failing windows at up to five escalating temperatures. Dense syllables are a compute multiplier. Keep this in mind whenever someone quotes you a tokens-per-second figure measured on podcast audio.</p>
+
+                <h2>It works too well</h2>
+
+                <p>Here’s the thing that stopped me. large-v3’s transcript of Godzilla verse 3 — 10.6 syllables per second, through a full mix — was nearly word-perfect:</p>
+
+                <blockquote><p>“...every bit of me is the epitome of a spitter when I’m in the vicinity... I’m unfadable, you wanna battle, I’m available, I’m blowin’ up like an inflatable...”</p></blockquote>
+
+                <p>I don’t believe any acoustic system can do that, and it doesn’t have to. These lyrics are all over the training data — lyric sites, karaoke videos, YouTube captions. The decoder isn’t hearing “I’m undebatable, I’m unavoidable.” It’s <em>remembering</em> it, with the audio as a retrieval cue.</p>
+
+                <p>The tell came from moonshine, the weakest model in the roster. It butchered “Lose Yourself” — except for one line, which it transcribed verbatim: <em>mom’s spaghetti</em>. The single most memed lyric in hip-hop was the one thing it “heard” perfectly.</p>
+
+                <h2>You might reasonably object</h2>
+
+                <p><em>Maybe rap over a beat is just hard, and famous verses are where the models happen to do well for boring acoustic reasons.</em> Fair. To answer that you need fast rap the models have never heard, with ground truth you trust — and for real music those two requirements fight each other. If a song’s lyrics are indexed well enough for you to verify, they were indexed well enough to be scraped. <strong>For real recordings, verifiable ground truth and training contamination are the same variable.</strong> Obscurity shrinks the problem; it can’t zero it.</p>
+
+                <p>So: manufacture the audio. I wrote an original chopper verse — dense multisyllabic internal rhyme in the Tech N9ne register, checked for n-gram overlap against real lyrics so the LLM that helped write it couldn’t smuggle in memorized bars — and had Suno sing it.</p>
+
+                <p>(My first attempt was cleverer and it failed completely: render the verse with TTS, then time-stretch it to each target syllable rate. Perfect experimental control, and it measured nothing — whisper cruised at 5–8% WER up to 11 syllables per second, a rate where real Eminem puts it at 39%. Pitch-preserving time-stretch gives you <em>slow speech played fast</em>. Actual fast speech degrades articulation — vowels reduce, consonants blur into each other — and that degradation, not the pace, is the difficulty. I’d built a difficulty dial that didn’t dial difficulty.)</p>
+
+                <p>Suno, on a speed-focused prompt, came back rapping my verse at a peak of <strong>10.6 syllables per second</strong> — Godzilla pace — nearly verbatim. During verification both ASR models “misheard” one word the same way, which turned out to be because Suno mispronounced it: the models transcribed what was sung more faithfully than my own reference did. Ground truth for generated vocals is what was <em>sung</em>, not what was written.</p>
+
+                <h2>The reckoning</h2>
+
+                <p>Full roster against the unseen verse, mean 8.4 syllables per second — <em>slower</em> than a famous verse several models had already survived:</p>
+
+                <table>
+                    <tr><th>model</th><th>unseen verse (8.4 syl/s)</th><th>famous “Speedom” (9.0 syl/s)</th></tr>
+                    <tr><td>mlx large-v3-turbo</td><td>42%</td><td>22%</td></tr>
+                    <tr><td>whisper turbo</td><td>44%</td><td>21%</td></tr>
+                    <tr><td>whisper large-v3</td><td>51%</td><td>23%</td></tr>
+                    <tr><td>parakeet</td><td>55%</td><td>33%</td></tr>
+                </table>
+
+                <p>Everything died, by roughly twenty points of WER against material it couldn’t have memorized.</p>
+
+                <p><em>Second reasonable objection: maybe AI-generated vocals are just weird for ASR.</em> Also testable: a second segment from the same generation session — same voice, same production, at an easy 4.9 syllables per second — scored 10–17% for the strong models. Unseen synthetic vocals are fine. Within an identical domain, moving 4.9 → 8.4 syl/s takes large-v3 from 10% to 51%. It’s the rate.</p>
+
+                <figure class="figure">
+                    <svg viewBox="0 0 600 340" role="img" aria-label="Line chart: whisper large-v3 word error rate versus syllable rate, on famous versus unseen verses. The famous curve hovers near the 25 percent survival threshold even past 9 syllables per second; the unseen curve crosses it at about 6.2.">
+                        <!-- gridlines + y ticks -->
+                        <g>
+                            <line class="chart-grid" x1="46" y1="290" x2="590" y2="290"/>
+                            <line class="chart-grid" x1="46" y1="222.5" x2="590" y2="222.5" stroke-dasharray="4 4" stroke="#999"/>
+                            <line class="chart-grid" x1="46" y1="155" x2="590" y2="155"/>
+                            <line class="chart-grid" x1="46" y1="87.5" x2="590" y2="87.5"/>
+                            <line class="chart-grid" x1="46" y1="20" x2="590" y2="20"/>
+                            <text class="chart-text" x="40" y="294" text-anchor="end">0</text>
+                            <text class="chart-text" x="40" y="226.5" text-anchor="end">25%</text>
+                            <text class="chart-text" x="40" y="159" text-anchor="end">50%</text>
+                            <text class="chart-text" x="40" y="91.5" text-anchor="end">75%</text>
+                            <text class="chart-text" x="40" y="24" text-anchor="end">100%</text>
+                            <text class="chart-text" x="52" y="215">survival threshold</text>
+                        </g>
+                        <!-- x ticks -->
+                        <g>
+                            <line class="chart-axis" x1="46" y1="290" x2="46" y2="294"/>
+                            <text class="chart-text" x="123.7" y="308" text-anchor="middle">5</text>
+                            <text class="chart-text" x="201.4" y="308" text-anchor="middle">6</text>
+                            <text class="chart-text" x="279.1" y="308" text-anchor="middle">7</text>
+                            <text class="chart-text" x="356.9" y="308" text-anchor="middle">8</text>
+                            <text class="chart-text" x="434.6" y="308" text-anchor="middle">9</text>
+                            <text class="chart-text" x="512.3" y="308" text-anchor="middle">10</text>
+                            <text class="chart-text" x="590" y="308" text-anchor="middle">11</text>
+                            <text class="chart-text" x="318" y="330" text-anchor="middle">syllables per second</text>
+                        </g>
+                        <!-- famous series (red) -->
+                        <g fill="none" stroke="#e34948" stroke-width="2">
+                            <polyline points="162.6,269.8 434.6,227.9 481.2,214.4 512.3,230.6 558.9,219.8"/>
+                        </g>
+                        <g fill="#e34948">
+                            <circle cx="162.6" cy="273.8" r="4.5"><title>Lose Yourself — 5.5 syl/s, 6% WER</title></circle>
+                            <circle cx="162.6" cy="265.7" r="4.5"><title>The Way I Am — 5.5 syl/s, 9% WER</title></circle>
+                            <circle cx="434.6" cy="227.9" r="4.5"><title>Speedom — 9.0 syl/s, 23% WER</title></circle>
+                            <circle cx="481.2" cy="214.4" r="4.5"><title>Rap God — 9.6 syl/s, 28% WER</title></circle>
+                            <circle cx="512.3" cy="230.6" r="4.5"><title>Worldwide Choppers — 10.0 syl/s, 22% WER</title></circle>
+                            <circle cx="558.9" cy="219.8" r="4.5"><title>Godzilla v3 — 10.6 syl/s, 26% WER</title></circle>
+                        </g>
+                        <!-- unseen series (blue) -->
+                        <g fill="none" stroke="#2a78d6" stroke-width="2">
+                            <polyline points="115.9,263 387.9,152.3"/>
+                        </g>
+                        <g fill="#2a78d6">
+                            <circle cx="115.9" cy="263" r="4.5"><title>unseen verse — 4.9 syl/s, 10% WER</title></circle>
+                            <circle cx="387.9" cy="152.3" r="4.5"><title>unseen verse — 8.4 syl/s, 51% WER</title></circle>
+                        </g>
+                        <!-- direct labels -->
+                        <text class="chart-label" x="398" y="140" fill="#2a78d6">unseen</text>
+                        <text class="chart-label" x="500" y="196" fill="#e34948">famous (memorized)</text>
+                    </svg>
+                    <figcaption>whisper large-v3, word error rate vs syllable rate. On famous verses it hugs the survival line all the way past 10 syl/s; on the unseen verse it blows through at ~6.2. Every dot is one verse; the other models draw the same picture.</figcaption>
+                </figure>
+
+                <p>With two rate points per model i could compute the statistic this whole project had been circling: the syllable rate at which each model’s WER curve crosses 25%, on famous material versus unseen material. The difference between those two numbers is the memorization, in physical units:</p>
+
+                <figure class="figure">
+                    <svg viewBox="0 0 600 265" role="img" aria-label="Dumbbell chart: critical syllable rate per model on unseen versus famous material. Whisper-family models gain about 3 syllables per second on famous material; parakeet gains 1.6.">
+                        <!-- legend -->
+                        <g>
+                            <circle cx="360" cy="18" r="4.5" fill="#2a78d6"/>
+                            <text class="chart-text" x="370" y="22">unseen</text>
+                            <circle cx="440" cy="18" r="4.5" fill="#e34948"/>
+                            <text class="chart-text" x="450" y="22">famous</text>
+                        </g>
+                        <!-- x grid -->
+                        <g>
+                            <line class="chart-grid" x1="203.3" y1="34" x2="203.3" y2="226"/>
+                            <line class="chart-grid" x1="276.7" y1="34" x2="276.7" y2="226"/>
+                            <line class="chart-grid" x1="350" y1="34" x2="350" y2="226"/>
+                            <line class="chart-grid" x1="423.3" y1="34" x2="423.3" y2="226"/>
+                            <line class="chart-grid" x1="496.7" y1="34" x2="496.7" y2="226"/>
+                            <line class="chart-grid" x1="570" y1="34" x2="570" y2="226"/>
+                            <text class="chart-text" x="203.3" y="242" text-anchor="middle">5</text>
+                            <text class="chart-text" x="276.7" y="242" text-anchor="middle">6</text>
+                            <text class="chart-text" x="350" y="242" text-anchor="middle">7</text>
+                            <text class="chart-text" x="423.3" y="242" text-anchor="middle">8</text>
+                            <text class="chart-text" x="496.7" y="242" text-anchor="middle">9</text>
+                            <text class="chart-text" x="570" y="242" text-anchor="middle">10</text>
+                            <text class="chart-text" x="386" y="262" text-anchor="middle">critical rate — syllables per second at 25% WER</text>
+                        </g>
+                        <!-- rows: xscale(r) = 130 + (r-4)/6*440 -->
+                        <g>
+                            <text class="chart-text" x="122" y="52" text-anchor="end">large-v3</text>
+                            <line x1="291.3" y1="48" x2="511.3" y2="48" stroke="#c3c2b7" stroke-width="2"/>
+                            <circle cx="291.3" cy="48" r="5" fill="#2a78d6"><title>large-v3 unseen: 6.2 syl/s</title></circle>
+                            <circle cx="511.3" cy="48" r="5" fill="#e34948"><title>large-v3 famous: 9.2 syl/s</title></circle>
+                            <text class="chart-label" x="524" y="52" fill="#777">+3.0</text>
+                        </g>
+                        <g>
+                            <text class="chart-text" x="122" y="86" text-anchor="end">mlx-turbo</text>
+                            <line x1="291.3" y1="82" x2="504" y2="82" stroke="#c3c2b7" stroke-width="2"/>
+                            <circle cx="291.3" cy="82" r="5" fill="#2a78d6"><title>mlx-turbo unseen: 6.2 syl/s</title></circle>
+                            <circle cx="504" cy="82" r="5" fill="#e34948"><title>mlx-turbo famous: 9.1 syl/s</title></circle>
+                            <text class="chart-label" x="517" y="86" fill="#777">+2.9</text>
+                        </g>
+                        <g>
+                            <text class="chart-text" x="122" y="120" text-anchor="end">turbo</text>
+                            <line x1="284" y1="116" x2="496.7" y2="116" stroke="#c3c2b7" stroke-width="2"/>
+                            <circle cx="284" cy="116" r="5" fill="#2a78d6"><title>turbo unseen: 6.1 syl/s</title></circle>
+                            <circle cx="496.7" cy="116" r="5" fill="#e34948"><title>turbo famous: 9.0 syl/s</title></circle>
+                            <text class="chart-label" x="509.7" y="120" fill="#777">+2.9</text>
+                        </g>
+                        <g>
+                            <text class="chart-text" x="122" y="154" text-anchor="end">distil</text>
+                            <line x1="247.3" y1="150" x2="423.3" y2="150" stroke="#c3c2b7" stroke-width="2"/>
+                            <circle cx="247.3" cy="150" r="5" fill="#2a78d6"><title>distil unseen: 5.6 syl/s</title></circle>
+                            <circle cx="423.3" cy="150" r="5" fill="#e34948"><title>distil famous: 8.0 syl/s</title></circle>
+                            <text class="chart-label" x="436.3" y="154" fill="#777">+2.4</text>
+                        </g>
+                        <g>
+                            <text class="chart-text" x="122" y="188" text-anchor="end">small</text>
+                            <line x1="196" y1="184" x2="386.7" y2="184" stroke="#c3c2b7" stroke-width="2"/>
+                            <circle cx="196" cy="184" r="5" fill="#2a78d6"><title>small unseen: 4.9 syl/s</title></circle>
+                            <circle cx="386.7" cy="184" r="5" fill="#e34948"><title>small famous: 7.5 syl/s</title></circle>
+                            <text class="chart-label" x="399.7" y="188" fill="#777">+2.6</text>
+                        </g>
+                        <g>
+                            <text class="chart-text" x="122" y="222" text-anchor="end">parakeet</text>
+                            <line x1="276.7" y1="218" x2="394" y2="218" stroke="#c3c2b7" stroke-width="2"/>
+                            <circle cx="276.7" cy="218" r="5" fill="#2a78d6"><title>parakeet unseen: 6.0 syl/s</title></circle>
+                            <circle cx="394" cy="218" r="5" fill="#e34948"><title>parakeet famous: 7.6 syl/s</title></circle>
+                            <text class="chart-label" x="407" y="222" fill="#777">+1.6</text>
+                        </g>
+                    </svg>
+                    <figcaption>the gap is the memorization. Whisper-family models — trained on web scrape full of lyric captions — carry ~3 syl/s of famous-track inflation. Parakeet, trained mostly on clean speech, carries half that.</figcaption>
+                </figure>
+
+                <p>Two things fall out. <strong>The honest ceiling for open-source ASR on fast rap it hasn’t heard before is about six syllables per second</strong> — energetic conversation pace, nowhere near a chopper. And the memorization splits by training data exactly as it should: whisper, trained on web scrape soaked in lyric captions, carries roughly <em>twice</em> the famous-track inflation of Parakeet, which trained mostly on clean speech corpora. You can read the training diet in the gap. (wav2vec2, whose LibriSpeech training set is public and verifiably Eminem-free, fails everything everywhere — a clean control: that’s what zero recall actually looks like.)</p>
+
+                <h2>The livestream test</h2>
+
+                <p>Back to the original tweet, because “tokens per second” has one more lie in it. mlx-turbo transcribes these clips at 20× real time in batch, so surely it can caption the rap live? I simulated it properly: audio arriving in real time, sliding-window re-decode, words committed once old enough that later windows won’t revise them, and decode overruns become caption lag, honestly accounted.</p>
+
+                <p>The naive configuration fell <strong>55 seconds behind on a 31-second song.</strong> Whisper pads every window to 30 seconds — so overlapping re-decodes pay the full-window cost dozens of times — and those temperature-fallback storms recur per window on hard audio. One 8-second window took 8.7 seconds to decode. Batch throughput is simply not a liveness number; worst-case window latency is, and nobody publishes it.</p>
+
+                <p>A sustainable configuration exists (fallback off, coarser commits, 2-second hop): zero overruns, captions ~2.6 seconds behind the rapper, 58% WER. Here is what that livestream would have shown:</p>
+
+                <div class="figure">
+                    <video controls preload="metadata" src="livecaption.mp4"></video>
+                    <p class="figure" style="font-size:0.75rem;color:var(--text-dim);margin-top:0.6em;">the captions keep perfect pace and read like a ransom note — “Metronomolish or abolish homological illogical” — at ten syllables per second, indefinitely.</p>
+                </div>
+
+                <p>The final twist came from wiring up Parakeet’s native streaming API (transducers carry decode state across chunks; no window hack). Parakeet lost to whisper everywhere in batch — and <strong>beat it live on the easy tier</strong>, 22% vs 34% on “Lose Yourself,” becoming the only configuration in the entire project that is simultaneously accurate and real-time on anything. Architecture built for streaming beats batch accuracy, right up until the acoustics get hard.</p>
+
+                <h2>Looking for the memorization in the weights</h2>
+
+                <p>If whisper memorized the lyrics, can you see it without any audio? I tried three probes on the decoder, ablating the audio to silence. Free-run completion from a verse’s opening words: it emits filler — “the the the...” — never lyrics. Forced-scoring the true continuation under its real preceding words versus a wrong prompt: the lift is tiny and nearly identical for famous and unseen verses. Raw likelihoods: famous lyrics score far higher than my synthetic verse — but a reference LM shows almost the same gap, because Eminem’s English is simply more typical than a verse built around the word “monological.” After fixing a normalization bug (per-token comparisons across different tokenizers are invalid; per-word is the comparable unit) whisper keeps a small excess preference for famous lyrics, too noisy at this sample size to call.</p>
+
+                <p>So i can’t find the memorization in the naked decoder, and it turns out that’s the expected answer: a recent <a href="https://arxiv.org/abs/2603.28378" target="_blank" rel="noopener">membership-inference study of audio language models</a> found that membership signals collapse to chance when you disrupt the audio-text pairing with silence or noise — memorization in these models is <em>cross-modal binding</em>, not a text prior. (<a href="https://arxiv.org/abs/2402.07841" target="_blank" rel="noopener">Naive membership inference on LLMs mostly measures distribution shift anyway</a>, which is exactly the trap the reference-model control caught here.) The lyric knowledge only activates with audio in the loop: a prior that biases <em>perception</em>, pulling acoustically ambiguous frames toward remembered word sequences. The behavioral test — matched-domain WER on verses that have never existed before — wasn’t the fallback method. It was the only instrument that could see the effect.</p>
+
+                <h2>What this cost</h2>
+
+                <p>One laptop, a weekend, a Suno account, and a verse about a syllable centrifuge that no human has ever performed — which is exactly why it was worth more to me than “Rap God.”</p>
+
+                <p>Whether anything can transcribe “Rap God”: no. Not the real question anymore, though. The models that look like they can are reciting; the honest ceiling on unseen fast rap is about six syllables per second; and the one model that can caption <em>anything</em> accurately in real time is the one that loses every batch benchmark. All the scripts, the methodology log (including the dead ends), and the ransom-note video are in <a href="https://github.com/ACNoonan/rap-bench" target="_blank" rel="noopener">the repo</a>.</p>
+                <!-- TODO(adam): rap-bench has no GitHub remote yet — push it before publishing, or delink. -->
+            </article>
+        </div>
+    </main>
+</body>
+</html>
