@@ -29,12 +29,20 @@
                 <p class="proximity-text">Calibration is a property of outputs: when you say 85%, does 85% happen? i work on earning that property honestly, auditing that it holds, and acting on it.</p>
                 <div class="project-list">
                     <div class="project-item proximity-text">
-                        <span class="section__link">Effective sample size for conformal calibration under shared ancestry</span>
-                        <p>Preprint. Split conformal&rsquo;s coverage law assumes i.i.d. calibration data. Generalises it to correlated families &mdash; beam branches, resampled particles &mdash; and shows the design effect this literature reports is the wrong quantity, not just an imprecise one.</p>
+                        <a href="https://arxiv.org/abs/2608.21262" target="_blank" rel="noopener" class="section__link">The Exceedance Design Effect: effective sample size for thresholds under clustering</a>
+                        <p>arXiv:2608.21262. Split conformal&rsquo;s coverage is a Beta random variable, a result that assumes independent calibration data. This derives the effective sample size when the data arrive in correlated clusters &mdash; beam branches, resampled rollouts, scores from one trace &mdash; and shows the standard design effect is the wrong quantity for a threshold. On a released 25,028-point reward-model calibration set, coverage is 4.46&times; more dispersed than independence implies.</p>
+                    </div>
+                    <div class="project-item proximity-text">
+                        <a href="https://github.com/ACNoonan/surestop" target="_blank" rel="noopener" class="section__link">SureStop: stop bad training runs early, with a bound on how often you kill a good one</a>
+                        <p>Open source, on PyPI as <code>surestop</code> with an Optuna pruner. Conformal risk control on the loss &ldquo;good and killed&rdquo;: you pick &alpha;, the rule keeps the false-kill rate at or below it. Measured on 400 real LoRA fine-tuning runs under a pre-registered protocol: the bound held on both splits and about half the evaluation compute was saved. The run also found that every kill fired at the 3rd of 50 evaluations, which is the part worth reading.</p>
                     </div>
                     <div class="project-item proximity-text">
                         <span class="section__link">Coverage inversion: a calibration-transparent oracle for closed-market hours</span>
-                        <p>Preprint, near submission. The consumer picks the coverage level; the oracle returns the band that empirically delivers it, with a receipt anyone can re-derive from public data. 12 years of weekend and overnight gaps. Shipped as <a href="https://github.com/ACNoonan/soothsayer" target="_blank" rel="noopener">soothsayer</a>.</p>
+                        <p>Paper submitted to arXiv. The consumer picks the coverage level; the oracle returns the band that empirically delivers it, with a receipt anyone can re-derive from public data. 12 years of weekend and overnight gaps. Reference implementation in <a href="https://github.com/ACNoonan/soothsayer" target="_blank" rel="noopener">soothsayer</a>.</p>
+                    </div>
+                    <div class="project-item proximity-text">
+                        <span class="section__link">The minibatch design effect</span>
+                        <p>In progress. When a minibatch holds several examples from the same document or author, how many independent examples is it worth? Measured on the correlation between the examples&rsquo; gradients, not their inputs, and tracked as the run trains.</p>
                     </div>
                     <div class="project-item proximity-text">
                         <span class="section__link">Selection on the score</span>
