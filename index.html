@@ -11,6 +11,65 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Person",
+                "@id": "https://adamnoonan.xyz/#person",
+                "name": "Adam Noonan",
+                "url": "https://adamnoonan.xyz/",
+                "email": "mailto:adamcnoonan@gmail.com",
+                "jobTitle": "Director of Data & AI",
+                "worksFor": { "@type": "Organization", "name": "Digital Locke" },
+                "alumniOf": { "@type": "CollegeOrUniversity", "name": "The University of Texas at Austin" },
+                "knowsAbout": [
+                    "Effective sample size",
+                    "Design effect",
+                    "Clustered data",
+                    "Quantile estimation",
+                    "Calibration",
+                    "Conformal prediction",
+                    "Machine learning evaluation",
+                    "Early stopping",
+                    "Digital twins"
+                ],
+                "sameAs": [
+                    "https://github.com/ACNoonan",
+                    "https://linkedin.com/in/adam-noonan/",
+                    "https://x.com/_adamnoonan"
+                ]
+            },
+            {
+                "@type": "ScholarlyArticle",
+                "headline": "The Exceedance Design Effect: Effective Sample Size for Thresholds under Clustering",
+                "author": { "@id": "https://adamnoonan.xyz/#person" },
+                "datePublished": "2026-08-21",
+                "url": "https://arxiv.org/abs/2608.21262",
+                "sameAs": "https://arxiv.org/abs/2608.21262",
+                "abstract": "How much the fraction of a population below an estimated cutoff varies when observations come in independent groups. Grouping multiplies its large-sample variance by 1+(m-1)ρ_I(p), where ρ_I(p) measures whether two members of a group fall on the same side of the cutoff."
+            },
+            {
+                "@type": "ScholarlyArticle",
+                "headline": "Coverage Inversion: Calibration-Transparent Fair-Value Oracles for Closed-Market Hours",
+                "author": { "@id": "https://adamnoonan.xyz/#person" },
+                "datePublished": "2026-08-25",
+                "url": "https://doi.org/10.5281/zenodo.22094768",
+                "identifier": { "@type": "PropertyValue", "propertyID": "DOI", "value": "10.5281/zenodo.22094768" }
+            },
+            {
+                "@type": "SoftwareSourceCode",
+                "name": "SureStop",
+                "description": "Stop bad training runs early, with a bound you set on how often a good one gets killed. Includes an Optuna pruner.",
+                "author": { "@id": "https://adamnoonan.xyz/#person" },
+                "codeRepository": "https://github.com/ACNoonan/surestop",
+                "programmingLanguage": "Python",
+                "sameAs": "https://pypi.org/project/surestop/"
+            }
+        ]
+    }
+    </script>
 </head>
 <body>
     <canvas id="canvas"></canvas>
