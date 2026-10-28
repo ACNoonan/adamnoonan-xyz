@@ -208,6 +208,23 @@ h1, h2 {
     color: var(--text-dim);
 }
 
+/* --- Art strip (home + art index) --- */
+
+.art-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 0.9em;
+}
+
+.art-strip img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
 /* --- Social Links --- */
 
 .social-links {

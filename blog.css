@@ -173,14 +173,6 @@
 
 /* --- Art --- */
 
-.art-strip {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-top: 0.9em;
-}
-
-.art-strip img,
 .art-grid img {
     display: block;
     width: 100%;
