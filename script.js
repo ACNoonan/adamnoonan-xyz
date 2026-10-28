@@ -31,7 +31,7 @@ function getScrollT() {
 // ── Path Builder ────────────────────────────────────────────────────
 // Returns an array of segments. Each segment is a self-contained array
 // of {x,y} points forming one clean element of the Seed of Life.
-// No connecting lines between elements — when fully drawn the result
+// No connecting lines between elements; when fully drawn the result
 // is perfectly symmetrical.
 
 function buildPath() {
@@ -73,14 +73,14 @@ function buildPath() {
         segs.push(arcPts(pcx, pcy, R, startA, startA + Math.PI * 2, 180));
     }
 
-    // 8. Triangle 1 — vertices at petal positions 0, 2, 4
+    // 8. Triangle 1: vertices at petal positions 0, 2, 4
     const t1 = [0, 2, 4].map(idx => {
         const a = -Math.PI / 2 + idx * Math.PI / 3;
         return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R };
     });
     segs.push(closedTriPts(t1, 40));
 
-    // 9. Triangle 2 — vertices at petal positions 1, 3, 5
+    // 9. Triangle 2: vertices at petal positions 1, 3, 5
     const t2 = [1, 3, 5].map(idx => {
         const a = -Math.PI / 2 + idx * Math.PI / 3;
         return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R };
@@ -144,7 +144,7 @@ function frame() {
     // Completeness ramps 0→1 over the last 10% of drawing
     const completeness = Math.min(1, Math.max(0, (drawT - 0.9) / 0.1));
 
-    // Main strokes — each segment drawn independently, no connecting lines
+    // Main strokes: each segment drawn independently, no connecting lines
     const mainAlpha = 0.3 + completeness * 0.1;
     ctx.strokeStyle = `rgba(0,0,0,${mainAlpha})`;
     ctx.lineWidth = 0.8;
@@ -167,7 +167,7 @@ function frame() {
         consumed += seg.length;
     }
 
-    // Fresh ink + head dot — fade out as drawing nears completion
+    // Fresh ink + head dot: fade out as drawing nears completion
     if (completeness < 1 && lastPt) {
         const fade = 1 - completeness;
         const freshLen = Math.floor(totalPts * 0.03);
