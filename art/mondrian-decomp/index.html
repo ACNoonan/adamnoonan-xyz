@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mondrian Decomp — Adam Noonan</title>
+    <meta name="description" content="Mondrian Decomp: 50 hard-edged compositions written as p5.js code by an open model and chosen by Adam Noonan.">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/blog.css">
+</head>
+<body>
+    <main class="page">
+        <div class="page__content">
+            <nav class="crumbs">
+                <a href="/">&larr; adamnoonan.xyz</a>
+                <a href="/art/">All series</a>
+            </nav>
+
+            <article class="post">
+                <h1 class="post-title">Mondrian Decomp</h1>
+                <p class="post-meta">October 2026 &middot; 50 paintings, p5.js, 800 &times; 800<span class="draft-badge">draft</span></p>
+
+                <h2>The series</h2>
+                <p>Fifty compositions in the language of De Stijl: black bars on an off-white ground, and a few flat planes of red, yellow and blue. Each one is a short program. A language model wrote the code, a browser rendered it, and I kept the ones I loved.</p>
+
+                <h2>Process</h2>
+                <p>I started from paintings rather than prompts. I gathered 914 works by nine artists I picked and went through them one by one, keeping 191 as the reference for what I was after.</p>
+                <p>The paintings are made by an open model, Qwen3.5-35B-A3B, running on my own GPU box. It doesn&rsquo;t output pixels. It writes p5.js, so every painting is code: each bar and plane is a line I can read, move or recolour, and randomness can be added later to make a piece generative.</p>
+                <p>I rated the renders blind, as love, okay or nope, and wrote a note on most of the loves saying why. Those notes fed back into the prompt over several rounds. Fixing the palette to red, yellow, blue and black made the biggest difference. My notes also turned into rules: no near-equal columns, no grey planes, bars that stop short of the edge, colour weighted toward the middle.</p>
+                <p>This series is the 50 paintings I marked love in a 99-painting tagging pass. Nothing was retouched.</p>
+
+                <h2>Why</h2>
+                <p>The question underneath is whether a small open model can learn to paint geometric abstraction, judged against paintings I love. My taste is the reward. The series is what that taste looks like when it&rsquo;s the only filter.</p>
+
+                <h2>Inspirations</h2>
+                <p>Piet Mondrian first, and around him De Stijl, Suprematism and Constructivism: Kazimir Malevich, Sophie Taeuber-Arp, Otto Freundlich, Theo van Doesburg, Franti&scaron;ek Kupka, Ilya Bolotowsky, Georges Vantongerloo and El Lissitzky.</p>
+
+                <h2>Objectives</h2>
+                <p>Train the model on these ratings so it paints closer to my taste on its own, and keep the code editable so any piece can be worked on by hand.</p>
+            </article>
+
+            <div class="art-grid">
+                <a href="img/01.png" target="_blank" rel="noopener"><img src="img/01.png" alt="Mondrian Decomp no. 1" loading="lazy"><span>1</span></a>
+                <a href="img/02.png" target="_blank" rel="noopener"><img src="img/02.png" alt="Mondrian Decomp no. 2" loading="lazy"><span>2</span></a>
+                <a href="img/03.png" target="_blank" rel="noopener"><img src="img/03.png" alt="Mondrian Decomp no. 3" loading="lazy"><span>3</span></a>
+                <a href="img/04.png" target="_blank" rel="noopener"><img src="img/04.png" alt="Mondrian Decomp no. 4" loading="lazy"><span>4</span></a>
+                <a href="img/05.png" target="_blank" rel="noopener"><img src="img/05.png" alt="Mondrian Decomp no. 5" loading="lazy"><span>5</span></a>
+                <a href="img/06.png" target="_blank" rel="noopener"><img src="img/06.png" alt="Mondrian Decomp no. 6" loading="lazy"><span>6</span></a>
+                <a href="img/07.png" target="_blank" rel="noopener"><img src="img/07.png" alt="Mondrian Decomp no. 7" loading="lazy"><span>7</span></a>
+                <a href="img/08.png" target="_blank" rel="noopener"><img src="img/08.png" alt="Mondrian Decomp no. 8" loading="lazy"><span>8</span></a>
+                <a href="img/09.png" target="_blank" rel="noopener"><img src="img/09.png" alt="Mondrian Decomp no. 9" loading="lazy"><span>9</span></a>
+                <a href="img/10.png" target="_blank" rel="noopener"><img src="img/10.png" alt="Mondrian Decomp no. 10" loading="lazy"><span>10</span></a>
+                <a href="img/11.png" target="_blank" rel="noopener"><img src="img/11.png" alt="Mondrian Decomp no. 11" loading="lazy"><span>11</span></a>
+                <a href="img/12.png" target="_blank" rel="noopener"><img src="img/12.png" alt="Mondrian Decomp no. 12" loading="lazy"><span>12</span></a>
+                <a href="img/13.png" target="_blank" rel="noopener"><img src="img/13.png" alt="Mondrian Decomp no. 13" loading="lazy"><span>13</span></a>
+                <a href="img/14.png" target="_blank" rel="noopener"><img src="img/14.png" alt="Mondrian Decomp no. 14" loading="lazy"><span>14</span></a>
+                <a href="img/15.png" target="_blank" rel="noopener"><img src="img/15.png" alt="Mondrian Decomp no. 15" loading="lazy"><span>15</span></a>
+                <a href="img/16.png" target="_blank" rel="noopener"><img src="img/16.png" alt="Mondrian Decomp no. 16" loading="lazy"><span>16</span></a>
+                <a href="img/17.png" target="_blank" rel="noopener"><img src="img/17.png" alt="Mondrian Decomp no. 17" loading="lazy"><span>17</span></a>
+                <a href="img/18.png" target="_blank" rel="noopener"><img src="img/18.png" alt="Mondrian Decomp no. 18" loading="lazy"><span>18</span></a>
+                <a href="img/19.png" target="_blank" rel="noopener"><img src="img/19.png" alt="Mondrian Decomp no. 19" loading="lazy"><span>19</span></a>
+                <a href="img/20.png" target="_blank" rel="noopener"><img src="img/20.png" alt="Mondrian Decomp no. 20" loading="lazy"><span>20</span></a>
+                <a href="img/21.png" target="_blank" rel="noopener"><img src="img/21.png" alt="Mondrian Decomp no. 21" loading="lazy"><span>21</span></a>
+                <a href="img/22.png" target="_blank" rel="noopener"><img src="img/22.png" alt="Mondrian Decomp no. 22" loading="lazy"><span>22</span></a>
+                <a href="img/23.png" target="_blank" rel="noopener"><img src="img/23.png" alt="Mondrian Decomp no. 23" loading="lazy"><span>23</span></a>
+                <a href="img/24.png" target="_blank" rel="noopener"><img src="img/24.png" alt="Mondrian Decomp no. 24" loading="lazy"><span>24</span></a>
+                <a href="img/25.png" target="_blank" rel="noopener"><img src="img/25.png" alt="Mondrian Decomp no. 25" loading="lazy"><span>25</span></a>
+                <a href="img/26.png" target="_blank" rel="noopener"><img src="img/26.png" alt="Mondrian Decomp no. 26" loading="lazy"><span>26</span></a>
+                <a href="img/27.png" target="_blank" rel="noopener"><img src="img/27.png" alt="Mondrian Decomp no. 27" loading="lazy"><span>27</span></a>
+                <a href="img/28.png" target="_blank" rel="noopener"><img src="img/28.png" alt="Mondrian Decomp no. 28" loading="lazy"><span>28</span></a>
+                <a href="img/29.png" target="_blank" rel="noopener"><img src="img/29.png" alt="Mondrian Decomp no. 29" loading="lazy"><span>29</span></a>
+                <a href="img/30.png" target="_blank" rel="noopener"><img src="img/30.png" alt="Mondrian Decomp no. 30" loading="lazy"><span>30</span></a>
+                <a href="img/31.png" target="_blank" rel="noopener"><img src="img/31.png" alt="Mondrian Decomp no. 31" loading="lazy"><span>31</span></a>
+                <a href="img/32.png" target="_blank" rel="noopener"><img src="img/32.png" alt="Mondrian Decomp no. 32" loading="lazy"><span>32</span></a>
+                <a href="img/33.png" target="_blank" rel="noopener"><img src="img/33.png" alt="Mondrian Decomp no. 33" loading="lazy"><span>33</span></a>
+                <a href="img/34.png" target="_blank" rel="noopener"><img src="img/34.png" alt="Mondrian Decomp no. 34" loading="lazy"><span>34</span></a>
+                <a href="img/35.png" target="_blank" rel="noopener"><img src="img/35.png" alt="Mondrian Decomp no. 35" loading="lazy"><span>35</span></a>
+                <a href="img/36.png" target="_blank" rel="noopener"><img src="img/36.png" alt="Mondrian Decomp no. 36" loading="lazy"><span>36</span></a>
+                <a href="img/37.png" target="_blank" rel="noopener"><img src="img/37.png" alt="Mondrian Decomp no. 37" loading="lazy"><span>37</span></a>
+                <a href="img/38.png" target="_blank" rel="noopener"><img src="img/38.png" alt="Mondrian Decomp no. 38" loading="lazy"><span>38</span></a>
+                <a href="img/39.png" target="_blank" rel="noopener"><img src="img/39.png" alt="Mondrian Decomp no. 39" loading="lazy"><span>39</span></a>
+                <a href="img/40.png" target="_blank" rel="noopener"><img src="img/40.png" alt="Mondrian Decomp no. 40" loading="lazy"><span>40</span></a>
+                <a href="img/41.png" target="_blank" rel="noopener"><img src="img/41.png" alt="Mondrian Decomp no. 41" loading="lazy"><span>41</span></a>
+                <a href="img/42.png" target="_blank" rel="noopener"><img src="img/42.png" alt="Mondrian Decomp no. 42" loading="lazy"><span>42</span></a>
+                <a href="img/43.png" target="_blank" rel="noopener"><img src="img/43.png" alt="Mondrian Decomp no. 43" loading="lazy"><span>43</span></a>
+                <a href="img/44.png" target="_blank" rel="noopener"><img src="img/44.png" alt="Mondrian Decomp no. 44" loading="lazy"><span>44</span></a>
+                <a href="img/45.png" target="_blank" rel="noopener"><img src="img/45.png" alt="Mondrian Decomp no. 45" loading="lazy"><span>45</span></a>
+                <a href="img/46.png" target="_blank" rel="noopener"><img src="img/46.png" alt="Mondrian Decomp no. 46" loading="lazy"><span>46</span></a>
+                <a href="img/47.png" target="_blank" rel="noopener"><img src="img/47.png" alt="Mondrian Decomp no. 47" loading="lazy"><span>47</span></a>
+                <a href="img/48.png" target="_blank" rel="noopener"><img src="img/48.png" alt="Mondrian Decomp no. 48" loading="lazy"><span>48</span></a>
+                <a href="img/49.png" target="_blank" rel="noopener"><img src="img/49.png" alt="Mondrian Decomp no. 49" loading="lazy"><span>49</span></a>
+                <a href="img/50.png" target="_blank" rel="noopener"><img src="img/50.png" alt="Mondrian Decomp no. 50" loading="lazy"><span>50</span></a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -170,3 +170,45 @@
         padding-left: 16px;
     }
 }
+
+/* --- Art --- */
+
+.art-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 0.9em;
+}
+
+.art-strip img,
+.art-grid img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.art-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 3em;
+}
+
+.art-grid a {
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    text-decoration: none;
+}
+
+.art-grid span {
+    display: block;
+    margin-top: 4px;
+}
+
+@media (max-width: 480px) {
+    .art-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
