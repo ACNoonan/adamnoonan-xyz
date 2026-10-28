@@ -26,35 +26,22 @@
         <section class="section" data-section="research">
             <div class="section__content">
                 <h2 class="proximity-text section__heading">Research</h2>
-                <p class="proximity-text">Calibration is a property of outputs: when you say 85%, does 85% happen? i work on earning that property honestly, auditing that it holds, and acting on it.</p>
                 <div class="project-list">
                     <div class="project-item proximity-text">
-                        <a href="https://arxiv.org/abs/2608.21262" target="_blank" rel="noopener" class="section__link">The Exceedance Design Effect: effective sample size for thresholds under clustering</a>
-                        <p>arXiv:2608.21262. Set a cutoff that 90% of a population falls below, estimated from a sample. When the observations come in groups &mdash; pupils in classrooms, sentences in articles, prefixes from one reasoning trace &mdash; the fraction below the cutoff varies more than independence implies, by a factor the paper proves and the usual design effect gets wrong. So a dataset has no single effective sample size: the same 1,000 rows carried about 217 independent observations&rsquo; worth at the median and about 621 at the 95th percentile. The number of rows belongs to the dataset. The effective sample size belongs to the analysis. Code and the <code>neff</code> estimator in <a href="https://github.com/ACNoonan/exceedance-design-effect" target="_blank" rel="noopener">exceedance-design-effect</a>.</p>
+                        <a href="https://arxiv.org/abs/2608.21262" target="_blank" rel="noopener" class="section__link">The Exceedance Design Effect</a>
+                        <p>Effective sample size for thresholds when data comes in clusters. The same 1,000 rows were worth about 217 independent observations at the median and about 621 at the 95th percentile.</p>
                     </div>
                     <div class="project-item proximity-text">
-                        <a href="https://github.com/ACNoonan/surestop" target="_blank" rel="noopener" class="section__link">SureStop: stop bad training runs early, with a bound on how often you kill a good one</a>
-                        <p>Open source, on PyPI as <code>surestop</code> with an Optuna pruner. Conformal risk control on the loss &ldquo;good and killed&rdquo;: you pick &alpha;, the rule keeps the false-kill rate at or below it. Measured on 400 real LoRA fine-tuning runs under a pre-registered protocol: the bound held on both splits and about half the evaluation compute was saved. The run also found that every kill fired at the 3rd of 50 evaluations, which is the part worth reading.</p>
+                        <a href="https://github.com/ACNoonan/surestop" target="_blank" rel="noopener" class="section__link">SureStop</a>
+                        <p>Stop bad training runs early, with a bound you set on how often a good one gets killed. On PyPI with an Optuna pruner.</p>
                     </div>
                     <div class="project-item proximity-text">
-                        <span class="section__link">Coverage inversion: a calibration-transparent oracle for closed-market hours</span>
-                        <p>Preprint on <a href="https://doi.org/10.5281/zenodo.22094768" target="_blank" rel="noopener">Zenodo</a>. The consumer picks the coverage level; the oracle returns the band that empirically delivers it, with a receipt anyone can re-derive from public data. 12 years of weekend and overnight gaps. Reference implementation in <a href="https://github.com/ACNoonan/soothsayer" target="_blank" rel="noopener">soothsayer</a>.</p>
+                        <a href="https://doi.org/10.5281/zenodo.22094768" target="_blank" rel="noopener" class="section__link">Coverage inversion</a>
+                        <p>An oracle for closed-market hours: you pick the coverage level, it returns the band that delivers it, with a receipt anyone can re-derive.</p>
                     </div>
                     <div class="project-item proximity-text">
                         <span class="section__link">The minibatch design effect</span>
-                        <p>In progress. When a minibatch holds several examples from the same document or author, how many independent examples is it worth? Measured on the correlation between the examples&rsquo; gradients, not their inputs, and tracked as the run trains.</p>
-                    </div>
-                    <div class="project-item proximity-text">
-                        <span class="section__link">Selection on the score</span>
-                        <p>In draft. When calibration-set membership depends on the score being calibrated, the correction weighted conformal applies to covariate shift doesn&rsquo;t exist. What replaces it is a sharp interval.</p>
-                    </div>
-                    <div class="project-item proximity-text">
-                        <span class="section__link">Twin fidelity without memorisation</span>
-                        <p>Fine-tuning a model to carry a person&rsquo;s idiolect while it learns none of their private facts &mdash; measured with extraction canaries on one side and authorship embeddings on the other.</p>
-                    </div>
-                    <div class="project-item proximity-text">
-                        <span class="section__link">Certified abstention</span>
-                        <p>Models represent internally that their evidence doesn&rsquo;t cover a question, and answer anyway. Reading that signal so every answer is grounded or escalated, under an error budget you set instead of hope for.</p>
+                        <p>In progress. How many independent examples a minibatch is worth when several come from the same document or author.</p>
                     </div>
                 </div>
             </div>
