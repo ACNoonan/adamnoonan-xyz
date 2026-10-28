@@ -1,0 +1,5 @@
+# Search engines and AI crawlers (training and retrieval) are all welcome.
+User-agent: *
+Allow: /
+
+Sitemap: https://adamnoonan.xyz/sitemap.xml
