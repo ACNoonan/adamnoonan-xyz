@@ -28,6 +28,20 @@ python3 -m http.server 8000
 
 Then open `http://localhost:8000`.
 
+## Writing desk
+
+Page prose for the art series lives in `story.md` next to each page's `index.html`.
+Edit it in the browser with:
+
+```bash
+python3 tools/write.py
+```
+
+Save renders the Markdown into the page between the `story:start` / `story:end`
+markers. Publish commits those two files, pushes to master and runs `vercel --prod`.
+To add another page, create a `story.md` beside it and wrap its prose in the markers.
+`tools/` is excluded from the deploy by `.vercelignore`.
+
 ## Suggested repo standards for a personal-site repo
 
 - Keep the site and README in sync (bio, project links, contact links).

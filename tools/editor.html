@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing desk</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/blog.css">
+<style>
+  body { overflow: auto; }
+  .bar {
+    position: sticky; top: 0; z-index: 5; background: var(--bg);
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    padding: 12px 20px; border-bottom: 1px solid var(--rule); font-size: 0.8rem;
+  }
+  .bar select, .bar input[type=text], .bar button {
+    font: inherit; color: var(--text); background: var(--bg);
+    border: 1px solid var(--rule); border-radius: 3px; padding: 4px 10px;
+  }
+  .bar button { cursor: pointer; }
+  .bar button:hover { background: var(--text); color: var(--bg); }
+  .bar button:disabled { opacity: 0.4; cursor: default; background: var(--bg); color: var(--text); }
+  .bar .grow { flex: 1; }
+  .bar a { color: var(--text-dim); }
+  #status { color: var(--text-dim); }
+  #message { min-width: 22em; }
+  .strip { display: flex; gap: 6px; overflow-x: auto; padding: 12px 20px; border-bottom: 1px solid #eee; }
+  .strip img { height: 72px; width: 72px; border: 1px solid rgba(0,0,0,.12); flex: none; }
+  .desk { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 160px); }
+  .write { border-right: 1px solid #eee; display: flex; flex-direction: column; }
+  textarea {
+    flex: 1; width: 100%; border: 0; outline: 0; resize: none; padding: 24px 28px;
+    font: 300 15px/1.8 var(--font); color: var(--text); background: var(--bg); min-height: 70vh;
+  }
+  details { padding: 10px 28px; border-bottom: 1px solid #eee; font-size: 0.8rem; color: var(--text-dim); }
+  details summary { cursor: pointer; }
+  details ul { margin: 8px 0 4px 1.2em; }
+  .help { font-size: 0.72rem; color: var(--text-dim); padding: 8px 28px; border-top: 1px solid #eee; }
+  .preview { padding: 24px 40px 80px; }
+  .preview .post-title { font-size: 2rem; }
+  #log {
+    display: none; white-space: pre-wrap; font-size: 0.72rem; padding: 12px 20px;
+    border-bottom: 1px solid var(--rule); background: #fafafa; max-height: 40vh; overflow: auto;
+  }
+  #log a { color: var(--text); }
+  @media (max-width: 800px) { .desk { grid-template-columns: 1fr; } .write { border-right: 0; } }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <select id="slug"></select>
+    <label><input type="checkbox" id="draft"> draft badge</label>
+    <button id="save" title="Cmd-S">Save</button>
+    <a id="view" target="_blank" rel="noopener">view page locally</a>
+    <span id="status"></span>
+    <span class="grow"></span>
+    <input type="text" id="message" placeholder="commit message">
+    <button id="publish">Publish</button>
+  </div>
+  <div id="log"></div>
+  <div class="strip" id="strip"></div>
+  <div class="desk">
+    <div class="write">
+      <details>
+        <summary>Questions to write from (yours to ignore)</summary>
+        <ul>
+          <li>What was going on in your life when you started this series?</li>
+          <li>When did you first see a Mondrian, and what did it do to you?</li>
+          <li>Why make paintings with a model instead of a brush?</li>
+          <li>Which painting in the series is your favourite, and why that one?</li>
+          <li>What surprised you while you were choosing them?</li>
+          <li>What does "Decomp" mean to you?</li>
+        </ul>
+      </details>
+      <textarea id="body" spellcheck="true"></textarea>
+      <div class="help">## Heading &middot; blank line between paragraphs &middot; *italic* &middot; **bold** &middot; [link](https://...) &middot; - list item &middot; <span id="words"></span></div>
+    </div>
+    <div class="preview">
+      <article class="post">
+        <h1 class="post-title" id="ptitle"></h1>
+        <div id="out"></div>
+      </article>
+    </div>
+  </div>
+<script>
+const $ = id => document.getElementById(id);
+let stories = [], saved = '', savedDraft = false, timer;
+
+const api = (path, body) => fetch('/_write/api/' + path, body === undefined ? {} : {
+  method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
+}).then(r => r.json());
+
+const current = () => stories.find(s => s.slug === $('slug').value);
+const dirty = () => $('body').value !== saved || $('draft').checked !== savedDraft;
+const backupKey = () => 'write:' + $('slug').value;
+
+function setStatus() {
+  $('status').textContent = dirty() ? 'unsaved changes' : 'saved';
+  const n = $('body').value.trim().split(/\s+/).filter(Boolean).length;
+  $('words').textContent = n + ' words';
+}
+
+function preview() {
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
+    const r = await api('render', {body: $('body').value});
+    $('out').innerHTML = r.html || '';
+  }, 150);
+}
+
+async function load() {
+  const s = current();
+  const r = await api('story?slug=' + encodeURIComponent(s.slug));
+  saved = r.body; savedDraft = r.draft;
+  let body = r.body;
+  try {
+    const b = JSON.parse(localStorage.getItem(backupKey()) || 'null');
+    if (b && b.base === r.body && b.body !== r.body) body = b.body;  // unsaved work from last time
+  } catch (e) {}
+  $('body').value = body;
+  $('draft').checked = r.draft;
+  $('ptitle').textContent = s.title;
+  $('view').href = '/' + s.slug + '/';
+  $('message').value = 'content: ' + s.title + ' in my own words';
+  $('strip').innerHTML = s.images.map(i => `<img src="/${s.slug}/img/${i}" alt="">`).join('');
+  setStatus(); preview();
+}
+
+async function save() {
+  const r = await api('save', {slug: $('slug').value, body: $('body').value, draft: $('draft').checked});
+  if (r.error) { alert(r.error); return false; }
+  saved = $('body').value; savedDraft = $('draft').checked;
+  try { localStorage.removeItem(backupKey()); } catch (e) {}
+  setStatus();
+  return true;
+}
+
+async function publish() {
+  const msg = $('message').value.trim();
+  if (!msg) { $('message').focus(); return; }
+  $('publish').disabled = true; $('save').disabled = true;
+  $('log').style.display = 'block';
+  $('log').textContent = 'Saving, committing, pushing and deploying. Vercel takes about 30 seconds...';
+  const r = await api('publish', {slug: $('slug').value, body: $('body').value, draft: $('draft').checked, message: msg});
+  $('publish').disabled = false; $('save').disabled = false;
+  if (r.error) { $('log').textContent = 'Failed: ' + r.error; return; }
+  saved = $('body').value; savedDraft = $('draft').checked; setStatus();
+  try { localStorage.removeItem(backupKey()); } catch (e) {}
+  const head = r.ok ? 'Published.' : 'Something failed. Nothing is lost: story.md is saved. Log below.';
+  const link = r.url ? `\n\nLive: <a href="${r.url}" target="_blank" rel="noopener">${r.url}</a>\n` : '';
+  $('log').innerHTML = head + link + '\n' + r.log.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+$('body').addEventListener('input', () => {
+  setStatus(); preview();
+  try { localStorage.setItem(backupKey(), JSON.stringify({base: saved, body: $('body').value})); } catch (e) {}
+});
+$('draft').addEventListener('change', setStatus);
+$('save').addEventListener('click', save);
+$('publish').addEventListener('click', publish);
+$('slug').addEventListener('change', load);
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); }
+});
+window.addEventListener('beforeunload', e => { if (dirty()) e.preventDefault(); });
+
+api('stories').then(list => {
+  stories = list;
+  $('slug').innerHTML = list.map(s => `<option value="${s.slug}">${s.title}</option>`).join('');
+  load();
+});
+</script>
+</body>
+</html>
