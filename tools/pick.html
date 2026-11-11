@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pick the 50</title>
+<title>Pick the series</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -50,7 +50,7 @@
 </head>
 <body>
 <div class="bar">
-  <span class="count" id="count">0 / 50</span>
+  <span class="count" id="count">0 / 75</span>
   <span class="chips" id="rounds"></span>
   <select id="view">
     <option value="all">All loves</option>
@@ -64,7 +64,7 @@
   </select>
   <label class="dim">size <input type="range" id="size" min="100" max="360" value="180"></label>
   <span class="grow"></span>
-  <button id="seed">Start from the current 50</button>
+  <button id="seed">Start from what is on the site</button>
   <button id="clear">Clear picks</button>
   <button id="apply">Use these on the site</button>
 </div>
@@ -72,6 +72,7 @@
 <div class="grid" id="grid"></div>
 <div class="box" id="box"><img id="boximg" alt=""><p id="boxnote"></p><p class="dim">Space: pick / unpick · ← → : previous / next · Esc: close</p></div>
 <script>
+const TARGET = 75;
 const $ = id => document.getElementById(id);
 let items = [], picks = [], rounds = new Set(), shown = [], boxAt = -1, dragId = null;
 const shuffleKey = {};
@@ -80,8 +81,8 @@ const save = () => fetch('/api/picks', {method: 'POST', headers: {'Content-Type'
 
 function count() {
   const n = picks.length, c = $('count');
-  c.textContent = n + ' / 50';
-  c.className = 'count' + (n === 50 ? ' full' : n > 50 ? ' over' : '');
+  c.textContent = n + ' / ' + TARGET;
+  c.className = 'count' + (n === TARGET ? ' full' : n > TARGET ? ' over' : '');
 }
 
 function visible() {
@@ -168,7 +169,7 @@ $('view').addEventListener('change', render);
 $('order').addEventListener('change', render);
 $('size').addEventListener('input', e => $('grid').style.setProperty('--s', e.target.value + 'px'));
 $('seed').addEventListener('click', () => {
-  if (picks.length && !confirm('Replace your current picks with the 50 on the site now?')) return;
+  if (picks.length && !confirm('Replace your current picks with the paintings on the site now?')) return;
   picks = items.filter(i => i.onsite).sort((a, b) => a.onsite - b.onsite).map(i => i.id);
   save(); render();
 });
