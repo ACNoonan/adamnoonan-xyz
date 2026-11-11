@@ -4,7 +4,7 @@ draft: true
 
 ## The series
 
-Fifty compositions inspired by Neoplasticism, in the language of De Stijl: black bars on an off-white ground, and a few flat planes of red, yellow and blue. I provided specific rules and instructions to a local language model, who wrote the programs to generate each painting individually.
+Seventy-five compositions inspired by Neoplasticism, in the language of De Stijl: black bars on an off-white ground, and a few flat planes of red, yellow and blue. I provided specific rules and instructions to a local language model, who wrote the programs to generate each painting individually.
 
 ## Why
 
@@ -44,7 +44,7 @@ Every piece is exactly as the model output, nothing was retouched or edited.
 
 ## Where it's going
 
-This current publication of the series is 50 outputs that were among my absolute favorites, selected by hand from thousands of generations. It is not a static collection and will continue to change and evolve as I continue perfecting the model, its instructions, and myself.
+This current publication of the series is 75 outputs that were among my absolute favorites, selected by hand from thousands of generations. It is not a static collection and will continue to change and evolve as I continue perfecting the model, its instructions, and myself.
 
 ## Inspirations
 
