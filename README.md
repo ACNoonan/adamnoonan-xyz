@@ -42,6 +42,10 @@ markers. Publish commits those two files, pushes to master and runs `vercel --pr
 To add another page, create a `story.md` beside it and wrap its prose in the markers.
 `tools/` is excluded from the deploy by `.vercelignore`.
 
+`python3 tools/pick.py` opens a picker with every painting Adam rated love in the geometric-abstraction
+rounds (untouched Qwen output only). Picks save to `tools/picks/mondrian-decomp.json`; "Use these on the
+site" copies them to `art/mondrian-decomp/img/` in pick order and rewrites the page's grid.
+
 ## Suggested repo standards for a personal-site repo
 
 - Keep the site and README in sync (bio, project links, contact links).

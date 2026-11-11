@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pick the 50</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font: 300 13px/1.5 'JetBrains Mono', monospace; color: #1a1a1a; background: #fff; }
+  .bar {
+    position: sticky; top: 0; z-index: 5; background: #fff; border-bottom: 1px solid #1a1a1a;
+    display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 10px 16px;
+  }
+  .bar button, .bar select {
+    font: inherit; color: #1a1a1a; background: #fff; border: 1px solid #1a1a1a;
+    border-radius: 3px; padding: 3px 10px; cursor: pointer;
+  }
+  .bar button:hover { background: #1a1a1a; color: #fff; }
+  .bar button.on { background: #1a1a1a; color: #fff; }
+  .count { font-weight: 700; font-size: 15px; }
+  .count.full { color: #1f7a3a; }
+  .count.over { color: #c0262d; }
+  .grow { flex: 1; }
+  .dim { color: #777; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--s, 180px), 1fr)); gap: 12px; padding: 16px; }
+  .cell { position: relative; cursor: pointer; user-select: none; }
+  .cell img { display: block; width: 100%; aspect-ratio: 1; border: 1px solid rgba(0,0,0,.12); }
+  .cell.picked img { outline: 4px solid #1a1a1a; outline-offset: 2px; }
+  .cell.dragover img { outline: 4px dashed #2a4bd7; }
+  .badge {
+    position: absolute; top: 6px; left: 6px; background: #1a1a1a; color: #fff; font-weight: 700;
+    min-width: 26px; text-align: center; padding: 1px 6px; border-radius: 3px; display: none;
+  }
+  .cell.picked .badge { display: block; }
+  .meta { font-size: 10px; color: #888; margin-top: 4px; display: flex; justify-content: space-between; }
+  .zoom {
+    position: absolute; top: 6px; right: 6px; background: rgba(255,255,255,.9); border: 1px solid #1a1a1a;
+    border-radius: 3px; padding: 0 6px; font-size: 12px; opacity: 0; transition: opacity .15s;
+  }
+  .cell:hover .zoom { opacity: 1; }
+  .box { position: fixed; inset: 0; background: rgba(255,255,255,.96); z-index: 10; display: none;
+         align-items: center; justify-content: center; flex-direction: column; gap: 12px; padding: 24px; }
+  .box.open { display: flex; }
+  .box img { max-width: min(90vw, 800px); max-height: 80vh; border: 1px solid rgba(0,0,0,.12); }
+  .box p { max-width: 800px; color: #555; }
+  .help { padding: 8px 16px 0; color: #777; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <span class="count" id="count">0 / 50</span>
+  <span class="chips" id="rounds"></span>
+  <select id="view">
+    <option value="all">All loves</option>
+    <option value="unpicked">Not picked</option>
+    <option value="picked">Picked (drag to reorder)</option>
+    <option value="onsite">On the site now</option>
+  </select>
+  <select id="order">
+    <option value="shuffle">Shuffled</option>
+    <option value="round">By round</option>
+  </select>
+  <label class="dim">size <input type="range" id="size" min="100" max="360" value="180"></label>
+  <span class="grow"></span>
+  <button id="seed">Start from the current 50</button>
+  <button id="clear">Clear picks</button>
+  <button id="apply">Use these on the site</button>
+</div>
+<p class="help">Click a painting to pick or unpick it. Picks save as you go. ⤢ opens it large (Esc closes, Space picks). The number in the corner is its place on the page.</p>
+<div class="grid" id="grid"></div>
+<div class="box" id="box"><img id="boximg" alt=""><p id="boxnote"></p><p class="dim">Space: pick / unpick · ← → : previous / next · Esc: close</p></div>
+<script>
+const $ = id => document.getElementById(id);
+let items = [], picks = [], rounds = new Set(), shown = [], boxAt = -1, dragId = null;
+const shuffleKey = {};
+
+const save = () => fetch('/api/picks', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({picks})});
+
+function count() {
+  const n = picks.length, c = $('count');
+  c.textContent = n + ' / 50';
+  c.className = 'count' + (n === 50 ? ' full' : n > 50 ? ' over' : '');
+}
+
+function visible() {
+  const v = $('view').value;
+  let list = items.filter(it => rounds.has(it.round));
+  if (v === 'picked') return picks.map(id => items.find(i => i.id === id));
+  if (v === 'unpicked') list = list.filter(it => !picks.includes(it.id));
+  if (v === 'onsite') return items.filter(it => it.onsite).sort((a, b) => a.onsite - b.onsite);
+  if ($('order').value === 'shuffle') list = [...list].sort((a, b) => shuffleKey[a.id] - shuffleKey[b.id]);
+  return list;
+}
+
+function cell(it) {
+  const d = document.createElement('div');
+  d.className = 'cell' + (picks.includes(it.id) ? ' picked' : '');
+  d.dataset.id = it.id;
+  const pos = picks.indexOf(it.id) + 1;
+  d.innerHTML = `<img src="/img/${it.id}" loading="lazy" alt=""><span class="badge">${pos || ''}</span><span class="zoom">⤢</span>
+    <div class="meta"><span>${it.round} · ${it.arm}</span><span>${it.onsite ? 'on site #' + it.onsite : ''}</span></div>`;
+  if (it.note) d.title = it.note;
+  d.addEventListener('click', e => {
+    if (e.target.classList.contains('zoom')) { openBox(shown.indexOf(it)); return; }
+    toggle(it.id);
+  });
+  if ($('view').value === 'picked') {
+    d.draggable = true;
+    d.addEventListener('dragstart', () => { dragId = it.id; });
+    d.addEventListener('dragover', e => { e.preventDefault(); d.classList.add('dragover'); });
+    d.addEventListener('dragleave', () => d.classList.remove('dragover'));
+    d.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = picks.indexOf(dragId), to = picks.indexOf(it.id);
+      if (from < 0 || to < 0 || from === to) return;
+      picks.splice(to, 0, picks.splice(from, 1)[0]);
+      save(); render();
+    });
+  }
+  return d;
+}
+
+function render() {
+  shown = visible();
+  const g = $('grid'), y = window.scrollY;
+  g.replaceChildren(...shown.map(cell));
+  window.scrollTo(0, y);
+  count();
+}
+
+function toggle(id) {
+  const i = picks.indexOf(id);
+  if (i >= 0) picks.splice(i, 1); else picks.push(id);
+  save();
+  if ($('view').value === 'all') {
+    // update in place so the grid doesn't jump
+    document.querySelectorAll('.cell').forEach(c => {
+      const p = picks.indexOf(c.dataset.id);
+      c.classList.toggle('picked', p >= 0);
+      c.querySelector('.badge').textContent = p >= 0 ? p + 1 : '';
+    });
+    count();
+  } else render();
+  if (boxAt >= 0) showBox();
+}
+
+function openBox(i) { boxAt = i; showBox(); $('box').classList.add('open'); }
+function showBox() {
+  const it = shown[boxAt]; if (!it) return;
+  $('boximg').src = '/img/' + it.id;
+  const p = picks.indexOf(it.id);
+  $('boxnote').textContent = (p >= 0 ? `Picked #${p + 1}. ` : 'Not picked. ') + `${it.round} · ${it.arm}` +
+    (it.onsite ? ` · on site #${it.onsite}` : '') + (it.note ? ` · your note: “${it.note}”` : '');
+}
+function closeBox() { boxAt = -1; $('box').classList.remove('open'); }
+
+document.addEventListener('keydown', e => {
+  if (boxAt < 0) return;
+  if (e.key === 'Escape') closeBox();
+  else if (e.key === ' ') { e.preventDefault(); toggle(shown[boxAt].id); }
+  else if (e.key === 'ArrowRight') { boxAt = Math.min(shown.length - 1, boxAt + 1); showBox(); }
+  else if (e.key === 'ArrowLeft') { boxAt = Math.max(0, boxAt - 1); showBox(); }
+});
+$('box').addEventListener('click', e => { if (e.target === $('box')) closeBox(); });
+$('view').addEventListener('change', render);
+$('order').addEventListener('change', render);
+$('size').addEventListener('input', e => $('grid').style.setProperty('--s', e.target.value + 'px'));
+$('seed').addEventListener('click', () => {
+  if (picks.length && !confirm('Replace your current picks with the 50 on the site now?')) return;
+  picks = items.filter(i => i.onsite).sort((a, b) => a.onsite - b.onsite).map(i => i.id);
+  save(); render();
+});
+$('clear').addEventListener('click', () => {
+  if (!confirm('Clear all ' + picks.length + ' picks?')) return;
+  picks = []; save(); render();
+});
+$('apply').addEventListener('click', async () => {
+  if (!picks.length) return;
+  if (!confirm(`Put these ${picks.length} paintings on the Mondrian Decomp page, in this order? This replaces the images in art/mondrian-decomp/img/ locally. Nothing is published yet.`)) return;
+  const r = await fetch('/api/apply', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({picks})}).then(r => r.json());
+  alert(r.ok ? `Done: ${r.n} paintings are on the local page. Check it at localhost:4747/art/mondrian-decomp/, then tell Claude to ship it.` : 'Failed');
+});
+
+fetch('/api/items').then(r => r.json()).then(d => {
+  items = d.items;
+  picks = d.picks.filter(id => items.some(i => i.id === id));
+  items.forEach(i => { shuffleKey[i.id] = Math.random(); });
+  const byRound = {};
+  items.forEach(i => byRound[i.round] = (byRound[i.round] || 0) + 1);
+  Object.keys(byRound).forEach(r => rounds.add(r));
+  $('rounds').innerHTML = '';
+  Object.entries(byRound).forEach(([r, n]) => {
+    const b = document.createElement('button');
+    b.className = 'on'; b.textContent = `${r} ${n}`;
+    b.onclick = () => { rounds.has(r) ? rounds.delete(r) : rounds.add(r); b.classList.toggle('on'); render(); };
+    $('rounds').appendChild(b);
+  });
+  render();
+});
+</script>
+</body>
+</html>
