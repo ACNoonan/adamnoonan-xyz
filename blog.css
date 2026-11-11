@@ -204,3 +204,22 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* --- Art series: text left, paintings right on wide screens --- */
+
+.page__content--wide {
+    max-width: 1400px;
+}
+
+@media (min-width: 1000px) {
+    .art-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 600px) minmax(0, 1fr);
+        gap: 64px;
+        align-items: start;
+    }
+
+    .art-layout .art-grid {
+        margin-top: 0.4em;
+    }
+}
