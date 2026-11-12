@@ -12,4 +12,4 @@ After **every** change to this repo (content, code, styles, copy — anything vi
 
 This is Adam's standing instruction — he wants to see each change live so he can verify it. Don't batch unrelated edits into one commit; one logical change per commit, ship immediately.
 
-The Vercel project is already linked via `.vercel/project.json`, so `vercel --prod` works without arguments. Report the production URL Vercel returns so Adam can click through.
+The Vercel project `adamnoonan-xyz-1` (the one serving adamnoonan.xyz) is linked via `.vercel/repo.json`, so `vercel --prod` works without arguments. It also deploys from GitHub on every push to master. Report the production URL Vercel returns so Adam can click through.
