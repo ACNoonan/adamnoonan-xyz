@@ -106,7 +106,7 @@ def apply(ids):
     b = s.index("</div>", a)
     indent = " " * 16
     cells = "".join(
-        f'\n{indent}<a href="img/{n:02d}.png" target="_blank" rel="noopener"><img src="img/{n:02d}.png" '
+        f'\n{indent}<a href="img/{n:02d}.png"><img src="img/{n:02d}.png" '
         f'alt="Mondrian Decomp 1 no. {n}" loading="lazy"><span>{n}</span></a>' for n in range(1, len(chosen) + 1))
     s = s[:a] + '<div class="art-grid">' + cells + "\n" + indent[4:] + s[b:]
     s = re.sub(r'(<p class="post-meta">[^<]*?)\b\d+ paintings', rf"\g<1>{len(chosen)} paintings", s, count=1)
