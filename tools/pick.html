@@ -179,7 +179,7 @@ $('clear').addEventListener('click', () => {
 });
 $('apply').addEventListener('click', async () => {
   if (!picks.length) return;
-  if (!confirm(`Put these ${picks.length} paintings on the Mondrian Decomp page, in this order? This replaces the images in art/mondrian-decomp/img/ locally. Nothing is published yet.`)) return;
+  if (!confirm(`Put these ${picks.length} paintings on the Mondrian Decomp 1 page, in this order? This replaces the images in art/mondrian-decomp/img/ locally. Nothing is published yet.`)) return;
   const r = await fetch('/api/apply', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({picks})}).then(r => r.json());
   alert(r.ok ? `Done: ${r.n} paintings are on the local page. Check it at localhost:4747/art/mondrian-decomp/, then tell Claude to ship it.` : 'Failed');
 });
