@@ -42,9 +42,13 @@ I judged the renders blind, rating each either as "love", "okay" or "nope", and 
 
 Every piece is exactly as the model output, nothing was retouched or edited.
 
-## Where it's going
+## Status
 
-This current publication of the series is 75 outputs that were among my absolute favorites, selected by hand from thousands of generations. It is not a static collection and will continue to change and evolve as I continue perfecting the model, its instructions, and myself.
+This series is 75 outputs that were among my absolute favorites, selected by hand from thousands of generations. It is finished. I'll keep perfecting the model, its instructions, and myself in the next series.
+
+## Weights
+
+The fine-tuned model is on Hugging Face: [mondrian-decomp-1-lora](https://huggingface.co/adamcnoonan/mondrian-decomp-1-lora). It's a LoRA adapter for Qwen3.5-35B-A3B, trained on 101 of the model's own sketches I rated love or okay. Two of the 75 paintings came from it. The other 73 came from the base model, steered by the prompt.
 
 ## Inspirations
 
