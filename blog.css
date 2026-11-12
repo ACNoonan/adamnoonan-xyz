@@ -223,3 +223,88 @@
         margin-top: 0.4em;
     }
 }
+
+/* --- Painting viewer (art/lightbox.js) --- */
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.97);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 16px;
+}
+
+.lightbox[hidden] {
+    display: none;
+}
+
+.lightbox__figure {
+    margin: 0;
+    text-align: center;
+}
+
+.lightbox__figure img {
+    display: block;
+    max-width: min(86vw, 800px);
+    max-height: 82vh;
+    width: auto;
+    height: auto;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.lightbox__figure figcaption {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.lightbox button {
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.lightbox button:hover {
+    background: var(--text);
+    color: var(--bg);
+}
+
+.lightbox__nav {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+}
+
+.lightbox__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.3rem;
+}
+
+@media (max-width: 600px) {
+    .lightbox {
+        flex-wrap: wrap;
+        align-content: center;
+    }
+
+    .lightbox__figure {
+        order: -1;
+        flex-basis: 100%;
+    }
+
+    .lightbox__figure img {
+        max-width: 100%;
+        margin: 0 auto;
+    }
+}
