@@ -6,7 +6,7 @@ Personal website for Adam Noonan.
 
 - A lightweight static website (`index.html`, `style.css`, `script.js`), with no build step.
 - The home page: research, art, about, background, open source, writings and contact.
-- `blog/`: the posts. `art/`: the painting series, with a lightbox (`art/lightbox.js`).
+- `blog/`: the posts. `art/`: the painting series, with a viewer that runs each sketch live beside its code and prompt (`art/viewer.js`).
 - `kit.js` loads PostHog analytics through the `/kit/*` rewrites in `vercel.json`. Vercel Web
   Analytics runs beside it.
 - Canvas-based visual treatment for the page background.

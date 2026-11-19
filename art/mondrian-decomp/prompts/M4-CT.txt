@@ -1,0 +1,208 @@
+You write p5.js sketches that paint grid compositions in the manner of Piet Mondrian's Neoplasticism: black bars dividing a pale canvas, with a few planes of flat colour.
+
+Use exactly this skeleton and fill in the numbered steps inside draw():
+
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+function draw() {
+  const W = 14; // the one bar thickness for this whole painting; choose it once, between 10 and 14
+  noStroke();
+  background(245, 242, 235);   // step 1: the pale ground, once, first
+  // step 2: the colour planes, each one as a fill(...) line followed by a rect(...) line
+  fill(0, 0, 0);               // step 3: switch to black, once, before any bar
+  // step 4: the bars, each one a rect whose thickness is W
+}
+
+Coordinates run from (0, 0) at the top left to (800, 800) at the bottom right.
+
+Use only these functions: background, fill, noStroke, rect. There are no lines, strokes, circles, diagonals or rotations in this style.
+
+How the functions work:
+- background(r, g, b) paints the whole canvas. Call it once, in step 1. Calling it later, or drawing a canvas-sized rect later, erases everything painted before it.
+- fill(r, g, b) sets the colour of every rect drawn after it, until the next fill. Colours are three numbers from 0 to 255.
+- rect(x, y, w, h) draws a rectangle with its top-left corner at (x, y), w wide and h tall. It takes exactly these four numbers and no colour. Its colour is whatever the last fill set.
+- So a red plane is two lines: fill(210, 30, 30); then rect(x, y, w, h);. And every black bar comes after the single fill(0, 0, 0) of step 3, so it is painted over the planes. Any coloured bar (see below) is drawn in step 2, with its own fill, like a plane.
+
+How to build the painting:
+- Keep it light. The bars are thick, so every bar adds a lot of black. Use between 3 and 8 black bars in all, counting every rect after fill(0, 0, 0). A painting crowded with bars goes dark and busy; the pale ground should dominate.
+- A full vertical bar is rect(x, 0, W, 800) and a full horizontal bar is rect(0, y, 800, W). A bar may stop short, but only where it meets another bar or the canvas edge. Never use any other thickness.
+- Use only these colours, with exactly these numbers: red fill(210, 30, 30), yellow fill(255, 220, 30), blue fill(30, 30, 210), and, for at most one plane, grey fill(190, 190, 190) or black fill(0, 0, 0). No other fill values anywhere in the painting.
+- Colour comes in one of two ways; choose one per painting.
+  - Colour planes: about three, never fewer than two or more than four, each one red, yellow or blue from the palette, and at most one grey or black.
+  - Coloured bars: instead of planes, three to six short bar segments in the palette's red, yellow or blue, each exactly W thick, running along the canvas edge or beside a black bar, and stopping short with pale gaps between them. No colour planes in this kind, or at most one small one.
+- A plane may fill a cell exactly, from one bar to the next, or sit inside a cell with pale space around it, or run under a bar into the next cell. Choose per painting.
+- Spacing is the art. Leave generous pale space. Make the cells clearly unequal: let one region be large and open, set it against a few small ones, and place the colour off-centre so the painting balances without being symmetric. Never space the bars evenly, and never centre the composition.
+- Work out your bar positions as numbers first, then place the planes relative to those numbers.
+
+Be inventive. Someone who knows every Mondrian painting should look at yours and find an arrangement they have not seen before: an unexpected placement of the open space, a colour where they would not expect it, bars that stop in a surprising place, an unusual balance between a crowded corner and an empty one. Surprise within the rules above; the rules on bars, thickness and colours still hold.
+
+What this viewer loves, in their own words and from hundreds of their ratings:
+- Spacing above everything. The paintings they love have really interesting, visually appealing spacing between the colour planes, and a good balance between colour and no colour. Let the pale ground breathe between the colours; don't let two colour planes crowd each other without attention to balance.
+- Few lines. The bars are thick, so too many of them floods the whole painting with darkness. Four to six bars is the sweet spot; spacing between lines is a critical factor in visual appeal.
+- About three colour planes. Two can look unfinished, so use it intentionally and four or more starts to look busy.
+- One large, open, pale region that the eye can rest in, set against a few smaller cells.
+- A fresh composition and perspective, not a copy of a known Mondrian. Be bold and tasteful.
+
+Six paintings in this style that a viewer loved follow. Each is a different kind of arrangement: an open classic grid, a busier grid, colour planes floating across the bars, a sparse painting that is mostly empty space, bars that stop short at one another, and coloured bars in place of planes. They show the range that works, not a template. Do not reuse their bar positions or plane sizes. Make an arrangement that is unlike any of them, of whichever kind suits the request.
+
+Example 1:
+```javascript
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+function draw() {
+  const W = 14;
+  noStroke();
+  background(245, 242, 235);
+  fill(210, 30, 30);
+  rect(0, 0, 240, 160);
+  fill(30, 30, 210);
+  rect(0, 480, 240, 240);
+  fill(255, 220, 30);
+  rect(560, 480, 240, 240);
+  fill(0, 0, 0);
+  rect(240, 0, W, 800);
+  rect(560, 0, W, 800);
+  rect(0, 160, 800, W);
+  rect(0, 480, 800, W);
+  rect(0, 720, 800, W);
+}
+```
+
+Example 2:
+```javascript
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+function draw() {
+  const W = 14;
+  noStroke();
+  background(245, 242, 235);
+  fill(210, 30, 30);
+  rect(0, 0, 200 - W, 180 - W);
+  fill(255, 220, 30);
+  rect(320 + W, 180 + W, 640 - (320 + W), 480 - (180 + W));
+  fill(30, 30, 210);
+  rect(0, 480 + W, 320 - W, 660 - (480 + W));
+  fill(190, 190, 190);
+  rect(640 + W, 660 + W, 800 - (640 + W), 800 - (660 + W));
+  fill(0, 0, 0);
+  rect(200, 0, W, 800);
+  rect(320, 0, W, 800);
+  rect(640, 0, W, 800);
+  rect(0, 180, 800, W);
+  rect(0, 480, 800, W);
+  rect(0, 660, 800, W);
+}
+```
+
+Example 3:
+```javascript
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+function draw() {
+  const W = 14;
+  noStroke();
+  background(245, 242, 235);
+  fill(210, 30, 30);
+  rect(50, 400, 150, 120);
+  fill(255, 220, 30);
+  rect(250, 100, 200, 300);
+  fill(30, 30, 210);
+  rect(500, 300, 180, 250);
+  fill(0, 0, 0);
+  rect(200, 0, W, 800);
+  rect(450, 0, W, 800);
+  rect(700, 0, W, 800);
+  rect(0, 350, 800, W);
+  rect(0, 650, 800, W);
+}
+```
+
+Example 4:
+```javascript
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+function draw() {
+  const W = 14;
+  noStroke();
+  background(245, 242, 235);
+  fill(255, 220, 30);
+  rect(40, 40, 200, 300);
+  fill(210, 30, 30);
+  rect(600, 450, 180, 320);
+  fill(0, 0, 0);
+  rect(240, 0, W, 800);
+  rect(0, 340, 800, W);
+  rect(0, 770, 800, W);
+}
+```
+
+Example 5:
+```javascript
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+function draw() {
+  const W = 14;
+  noStroke();
+  background(245, 242, 235);
+  fill(210, 30, 30);
+  rect(0, 0, 386, 350);
+  fill(30, 30, 210);
+  rect(414, 614, 166, 186);
+  fill(255, 220, 30);
+  rect(594, 364, 206, 436);
+  fill(0, 0, 0);
+  rect(400, 0, W, 800);
+  rect(580, 0, W, 800);
+  rect(660, 0, W, 614);
+  rect(0, 350, 660, W);
+  rect(0, 520, 400, W);
+  rect(0, 600, 594, W);
+}
+```
+
+Example 6:
+```javascript
+function setup() {
+  createCanvas(800, 800);
+  noLoop();
+}
+function draw() {
+  const W = 14;
+  noStroke();
+  background(245, 242, 235);
+  fill(210, 30, 30);
+  rect(0, 0, W, 350);
+  fill(255, 220, 30);
+  rect(0, 400, W, 200);
+  fill(30, 30, 210);
+  rect(0, 650, W, 150);
+  fill(255, 220, 30);
+  rect(650, 0, W, 300);
+  fill(30, 30, 210);
+  rect(700, 350, W, 200);
+  fill(210, 30, 30);
+  rect(700, 600, W, 200);
+  fill(0, 0, 0);
+  rect(W, 0, W, 800);
+  rect(W + 600, 0, W, 800);
+  rect(0, W, 800, W);
+  rect(0, W + 350, 800, W);
+  rect(0, W + 600, 800, W);
+}
+```
+
+Do not use random(), loops, text, images or any other function.
+
+Reply with one ```javascript code block containing the whole sketch, and nothing else.

@@ -1,0 +1,677 @@
+[
+ {
+  "n": 1,
+  "painting": "img/01.png",
+  "sketch": "sketches/01.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M2.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition weighted to the right, with the left side quiet. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 2,
+  "painting": "img/02.png",
+  "sketch": "sketches/02.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which blue is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 3,
+  "painting": "img/03.png",
+  "sketch": "sketches/03.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a long horizontal bar that stops short of both edges. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 4,
+  "painting": "img/04.png",
+  "sketch": "sketches/04.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which red is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 5,
+  "painting": "img/05.png",
+  "sketch": "sketches/05.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with the colour arranged on a diagonal from top left to bottom right. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 6,
+  "painting": "img/06.png",
+  "sketch": "sketches/06.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a tall yellow plane crossing two cells. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 7,
+  "painting": "img/07.png",
+  "sketch": "sketches/07.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 8,
+  "painting": "img/08.png",
+  "sketch": "sketches/08.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with two colour planes overlapping one another. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 9,
+  "painting": "img/09.png",
+  "sketch": "sketches/09.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 10,
+  "painting": "img/10.png",
+  "sketch": "sketches/10.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M3.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition weighted to the right, with the left side quiet. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 11,
+  "painting": "img/11.png",
+  "sketch": "sketches/11.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a wide, low cell and a tall, narrow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 12,
+  "painting": "img/12.png",
+  "sketch": "sketches/12.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a black plane among the three colours. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 13,
+  "painting": "img/13.png",
+  "sketch": "sketches/13.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a yellow plane wider than half the canvas. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 14,
+  "painting": "img/14.png",
+  "sketch": "sketches/14.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which red is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 15,
+  "painting": "img/15.png",
+  "sketch": "sketches/15.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a small yellow plane between two large pale cells. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 16,
+  "painting": "img/16.png",
+  "sketch": "sketches/16.js",
+  "model": "Qwen3.5-35B-A3B + Mondrian Decomp 1 LoRA",
+  "system_prompt": "prompts/M2.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a cluster of small cells in one corner and open space elsewhere. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 17,
+  "painting": "img/17.png",
+  "sketch": "sketches/17.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a narrow red plane and a broad yellow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 18,
+  "painting": "img/18.png",
+  "sketch": "sketches/18.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a narrow red plane and a broad yellow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 19,
+  "painting": "img/19.png",
+  "sketch": "sketches/19.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a long horizontal bar that stops short of both edges. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 20,
+  "painting": "img/20.png",
+  "sketch": "sketches/20.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 21,
+  "painting": "img/21.png",
+  "sketch": "sketches/21.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a long horizontal bar that stops short of both edges. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 22,
+  "painting": "img/22.png",
+  "sketch": "sketches/22.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a narrow red plane and a broad yellow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 23,
+  "painting": "img/23.png",
+  "sketch": "sketches/23.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a black plane among the three colours. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 24,
+  "painting": "img/24.png",
+  "sketch": "sketches/24.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HA.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 25,
+  "painting": "img/25.png",
+  "sketch": "sketches/25.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a plane that lines up with a bar in another part of the canvas. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 26,
+  "painting": "img/26.png",
+  "sketch": "sketches/26.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a red plane that a black bar cuts across. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 27,
+  "painting": "img/27.png",
+  "sketch": "sketches/27.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a wide, low cell and a tall, narrow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 28,
+  "painting": "img/28.png",
+  "sketch": "sketches/28.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M2.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with red, yellow and blue planes all touching the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 29,
+  "painting": "img/29.png",
+  "sketch": "sketches/29.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a tall yellow plane crossing two cells. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 30,
+  "painting": "img/30.png",
+  "sketch": "sketches/30.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a wide, low cell and a tall, narrow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 31,
+  "painting": "img/31.png",
+  "sketch": "sketches/31.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a tall yellow plane crossing two cells. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 32,
+  "painting": "img/32.png",
+  "sketch": "sketches/32.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a red plane that a black bar cuts across. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 33,
+  "painting": "img/33.png",
+  "sketch": "sketches/33.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with two colour planes overlapping one another. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 34,
+  "painting": "img/34.png",
+  "sketch": "sketches/34.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a long horizontal bar that stops short of both edges. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 35,
+  "painting": "img/35.png",
+  "sketch": "sketches/35.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a plane covering the point where two bars meet. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 36,
+  "painting": "img/36.png",
+  "sketch": "sketches/36.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with planes stepping down, each a little lower than the last. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 37,
+  "painting": "img/37.png",
+  "sketch": "sketches/37.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which red is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 38,
+  "painting": "img/38.png",
+  "sketch": "sketches/38.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a tall narrow cell beside a broad open one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 39,
+  "painting": "img/39.png",
+  "sketch": "sketches/39.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 40,
+  "painting": "img/40.png",
+  "sketch": "sketches/40.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a red plane that a black bar cuts across. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 41,
+  "painting": "img/41.png",
+  "sketch": "sketches/41.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4-CT.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a black plane as its smallest element. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 42,
+  "painting": "img/42.png",
+  "sketch": "sketches/42.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with no plane touching the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 43,
+  "painting": "img/43.png",
+  "sketch": "sketches/43.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 44,
+  "painting": "img/44.png",
+  "sketch": "sketches/44.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane in the upper left and a small red accent far from it. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 45,
+  "painting": "img/45.png",
+  "sketch": "sketches/45.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with colour spread across the width of the canvas. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 46,
+  "painting": "img/46.png",
+  "sketch": "sketches/46.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a large open cell at its centre and colour around it. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 47,
+  "painting": "img/47.png",
+  "sketch": "sketches/47.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 48,
+  "painting": "img/48.png",
+  "sketch": "sketches/48.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a yellow plane resting on a horizontal bar. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 49,
+  "painting": "img/49.png",
+  "sketch": "sketches/49.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a red plane that a black bar cuts across. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 50,
+  "painting": "img/50.png",
+  "sketch": "sketches/50.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a wide, low cell and a tall, narrow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 51,
+  "painting": "img/51.png",
+  "sketch": "sketches/51.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M2.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which yellow is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 52,
+  "painting": "img/52.png",
+  "sketch": "sketches/52.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with bars that cross near the top and leave the bottom open. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 53,
+  "painting": "img/53.png",
+  "sketch": "sketches/53.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a narrow red plane and a broad yellow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 54,
+  "painting": "img/54.png",
+  "sketch": "sketches/54.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which red is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 55,
+  "painting": "img/55.png",
+  "sketch": "sketches/55.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which red is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 56,
+  "painting": "img/56.png",
+  "sketch": "sketches/56.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a plane split in two by a vertical bar. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 57,
+  "painting": "img/57.png",
+  "sketch": "sketches/57.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a tall yellow plane crossing two cells. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 58,
+  "painting": "img/58.png",
+  "sketch": "sketches/58.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a tall blue plane on the right. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 59,
+  "painting": "img/59.png",
+  "sketch": "sketches/59.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with one bar much longer than all the others. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 60,
+  "painting": "img/60.png",
+  "sketch": "sketches/60.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M2.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which yellow is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 61,
+  "painting": "img/61.png",
+  "sketch": "sketches/61.js",
+  "model": "Qwen3.5-35B-A3B + Mondrian Decomp 1 LoRA",
+  "system_prompt": "prompts/M2.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a wide yellow plane along the bottom edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 62,
+  "painting": "img/62.png",
+  "sketch": "sketches/62.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a red plane and a blue plane that nearly meet. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 63,
+  "painting": "img/63.png",
+  "sketch": "sketches/63.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HC.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which red is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 64,
+  "painting": "img/64.png",
+  "sketch": "sketches/64.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a bar that crosses a blue plane. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 65,
+  "painting": "img/65.png",
+  "sketch": "sketches/65.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HA.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with two colour planes overlapping one another. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 66,
+  "painting": "img/66.png",
+  "sketch": "sketches/66.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a square cell left empty. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 67,
+  "painting": "img/67.png",
+  "sketch": "sketches/67.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a long horizontal bar that stops short of both edges. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 68,
+  "painting": "img/68.png",
+  "sketch": "sketches/68.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5-HA.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a long horizontal bar that stops short of both edges. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 69,
+  "painting": "img/69.png",
+  "sketch": "sketches/69.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4-CT.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which blue is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 70,
+  "painting": "img/70.png",
+  "sketch": "sketches/70.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": true,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a blue plane that runs off the canvas edge. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 71,
+  "painting": "img/71.png",
+  "sketch": "sketches/71.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a plane that lines up with a bar in another part of the canvas. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 72,
+  "painting": "img/72.png",
+  "sketch": "sketches/72.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M4.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a red plane that a black bar cuts across. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 73,
+  "painting": "img/73.png",
+  "sketch": "sketches/73.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with blue as the smallest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 74,
+  "painting": "img/74.png",
+  "sketch": "sketches/74.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition with a black plane next to a yellow one. Use only the allowed functions. Do not reproduce any existing painting."
+ },
+ {
+  "n": 75,
+  "painting": "img/75.png",
+  "sketch": "sketches/75.js",
+  "model": "Qwen3.5-35B-A3B",
+  "system_prompt": "prompts/M5.txt",
+  "rule_filter": false,
+  "user_prompt": "Write a p5.js sketch that paints an original Mondrian-style grid composition in which red is the largest colour. Use only the allowed functions. Do not reproduce any existing painting."
+ }
+]
