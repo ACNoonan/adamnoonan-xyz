@@ -4,15 +4,15 @@ Personal website for Adam Noonan.
 
 ## What this repo contains
 
-- A lightweight static website (`index.html`, `style.css`, `script.js`).
-- A profile page with background, contact links, and active project links.
+- A lightweight static website (`index.html`, `style.css`, `script.js`), with no build step.
+- The home page: research, art, about, background, open source, writings and contact.
+- `blog/`: the posts. `art/`: the painting series, with a lightbox (`art/lightbox.js`).
+- `kit.js` loads PostHog analytics through the `/kit/*` rewrites in `vercel.json`. Vercel Web
+  Analytics runs beside it.
 - Canvas-based visual treatment for the page background.
 
-## Projects featured on the site
-
-- [`relay-cli`](https://github.com/ACNoonan/relay-cli) - Local agent harness CLI for orchestrating AI-assisted development workflows.
-- [`legal-bot`](https://github.com/ACNoonan/legal-bot) - CLI-first legal research assistant with citation-focused workflows.
-- [`colony`](https://github.com/ACNoonan/colony) - Early-stage Jido + Kafka runtime for coordination-heavy distributed agent systems.
+The projects and papers featured on the site are listed in `index.html`. That file is the
+source of truth, so this README doesn't repeat them.
 
 ## Local development
 
@@ -38,7 +38,7 @@ python3 tools/write.py
 ```
 
 Save renders the Markdown into the page between the `story:start` / `story:end`
-markers. Publish commits those two files, pushes to master and runs `vercel --prod`.
+markers. Publish commits those two files and pushes to master, which deploys.
 To add another page, create a `story.md` beside it and wrap its prose in the markers.
 `tools/` is excluded from the deploy by `.vercelignore`.
 

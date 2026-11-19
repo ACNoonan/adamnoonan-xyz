@@ -6,7 +6,7 @@
 Opens an editor in the browser. Each page's prose lives in a `story.md` next to
 its index.html. Saving renders the Markdown into the page between the
 `<!-- story:start -->` and `<!-- story:end -->` markers. Publish commits only
-those two files, pushes to master and runs `vercel --prod`.
+those two files and pushes to master, which deploys (Vercel builds every push).
 
 Markdown supported: `## heading`, paragraphs (blank line between), `- list`,
 `*italic*`, `**bold**`, `[text](url)`, and `---` for a rule. Anything else is
@@ -145,10 +145,9 @@ def publish(slug, body, draft, message):
     log.append(out)
     if code:
         return False, "\n".join(log), None
-    code, out = run(["vercel", "--prod", "--yes"])
-    log.append(out)
-    urls = re.findall(r"https://\S+\.vercel\.app\S*", out)
-    return code == 0, "\n".join(log), (urls[-1] if urls else None)
+    # The push is the deploy: Vercel builds every push to master.
+    page = next(f for f in files if f.endswith("index.html"))
+    return True, "\n".join(log), f"https://adamnoonan.xyz/{page[:-len('index.html')]}"
 
 
 # --- Server ---------------------------------------------------------------
