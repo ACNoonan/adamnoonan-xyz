@@ -49,15 +49,32 @@
         window.posthog.capture('painting_viewed', { painting: c.n, of: 75, how: how, page: location.pathname });
     }
 
+    function link(href, text) {
+        const a = document.createElement('a');
+        a.href = href;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = text;
+        return a;
+    }
+
+    const BASE_MODEL = 'Qwen3.5-35B-A3B';
+    const HF_BASE = 'https://huggingface.co/Qwen/Qwen3.5-35B-A3B';
+    const HF_LORA = 'https://huggingface.co/adamcnoonan/mondrian-decomp-1-lora';
+
+    // "Qwen3.5-35B-A3B" or "Qwen3.5-35B-A3B + Mondrian Decomp 1 LoRA": each part links to its Hugging Face page
+    function model(name) {
+        if (name.indexOf(BASE_MODEL) !== 0) return [name];
+        const rest = name.slice(BASE_MODEL.length).replace(/^ \+ /, '');
+        const parts = [link(HF_BASE, BASE_MODEL)];
+        if (rest) parts.push(' + ', link(HF_LORA, rest));
+        return parts;
+    }
+
     function setMeta(c) {
         const name = c.system_prompt.split('/').pop().replace('.txt', '');
-        const sys = document.createElement('a');
-        sys.href = BASE + c.system_prompt;
-        sys.target = '_blank';
-        sys.rel = 'noopener';
-        sys.textContent = 'system prompt ' + name;
         meta.replaceChildren(
-            c.model + ' · ', sys,
+            ...model(c.model), ' · ', link(BASE + c.system_prompt, 'system prompt ' + name),
             (c.rule_filter ? ' + rule filter' : '') + ' · "' + c.user_prompt + '"'
         );
     }
