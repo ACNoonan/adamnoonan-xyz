@@ -22,9 +22,21 @@
     let at = 0;
     let lastFocus = null;
 
-    function show(i) {
+    // how: 'open' from the grid, or 'step' with the arrows, keys or a swipe
+    function track(how) {
+        if (!window.posthog || !window.posthog.capture) return;
+        window.posthog.capture('painting_viewed', {
+            painting: at + 1,
+            of: links.length,
+            image: links[at].getAttribute('href'),
+            how: how
+        });
+    }
+
+    function show(i, how) {
         at = (i + links.length) % links.length;
         const a = links[at];
+        track(how || 'step');
         img.src = a.getAttribute('href');
         img.alt = a.querySelector('img').alt;
         caption.textContent = (at + 1) + ' / ' + links.length;
@@ -36,7 +48,7 @@
 
     function open(i) {
         lastFocus = document.activeElement;
-        show(i);
+        show(i, 'open');
         box.hidden = false;
         document.body.style.overflow = 'hidden';
         box.querySelector('.lightbox__next').focus();
