@@ -223,3 +223,22 @@
         margin-top: 0.4em;
     }
 }
+
+/* --- Figure inside a post: an image with a caption --- */
+
+.post-fig {
+    margin: 1.6em 0 2em;
+}
+
+.post-fig img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.post-fig figcaption {
+    margin-top: 6px;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+}

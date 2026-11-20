@@ -10,6 +10,8 @@ Seventy-five compositions inspired by Neoplasticism, in the language of De Stijl
 
 As a student, from elementary to high school, I always loved to doodle. I'd fill whole pages with intricate patterns while listening to the teacher; it helped me pay attention in class. My teachers hated it at first but realized I was always able to answer any questions they asked about the content, and did well on assignments and exams.
 
+{{fig:doodle}}
+
 Once I got to college, I found it required my full attention - I began taking notes instead of drawing. As I transitioned into my professional career in technology and software, I never really found the time and space to have any sort of similarly creative outlet.
 
 Then, in 2022, OpenAI released GPT 3.5. I was one of the first 0.1% of users (according to OpenAI's "Your Year with ChatGPT" campaign, launched December 22, 2025). Since then LLMs have dramatically transformed how I work, and what I'm capable of achieving.
